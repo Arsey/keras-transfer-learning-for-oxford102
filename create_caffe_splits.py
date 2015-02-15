@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import glob
 import numpy as np
 from scipy.io import loadmat
