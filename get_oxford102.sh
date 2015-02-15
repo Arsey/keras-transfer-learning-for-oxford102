@@ -7,6 +7,7 @@
 
 mkdir data
 cd data
+mkdir oxford102
 
 echo "Downloading flower images..."
 
