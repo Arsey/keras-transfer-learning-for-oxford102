@@ -2,7 +2,4 @@
 *#
 .#*
 *.DS_Store
-
-data/oxford102/jpg
-data/102flowers.tgz
-data/*.mat
+data
