@@ -1,11 +1,11 @@
-name: "Oxford102StyleCaffeNet"
+name: "Oxford102CaffeNet"
 layers {
   name: "data"
   type: IMAGE_DATA
   top: "data"
   top: "label"
   image_data_param {
-    source: "data/train.txt"
+    source: "data/oxford102/train.txt"
     batch_size: 50
     new_height: 256
     new_width: 256
@@ -23,7 +23,7 @@ layers {
   top: "data"
   top: "label"
   image_data_param {
-    source: "data/test.txt"
+    source: "data/oxford102/test.txt"
     batch_size: 50
     new_height: 256
     new_width: 256

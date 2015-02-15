@@ -3,5 +3,6 @@
 .#*
 *.DS_Store
 
-data/jpg/*
+data/oxford102/jpg
 data/102flowers.tgz
+data/*.mat

@@ -16,13 +16,13 @@ image_labels = loadmat('data/imagelabels.mat')['labels'][0]
 # Subtract one to get 0-based labels
 image_labels -= 1
 
-files = sorted(glob.glob('data/jpg/*.jpg'))
+files = sorted(glob.glob('data/oxford102/jpg/*.jpg'))
 labels = np.array(zip(files, image_labels))
 
-def write_set_file(fout, labels, base_dir=''):
+def write_set_file(fout, labels):
     with open(fout, 'w+') as f:
         for label in labels:
-            f.write('%s%s %s\n' % (base_dir, label[0], label[1]))
+            f.write('%s %s\n' % (label[0], label[1]))
 
 np.random.seed(777)
 
