@@ -1,17 +1,17 @@
 # caffe-oxford102
-This is for training a deep convolutional neural network to classify images in the Oxford 102 category flower dataset (http://www.robots.ox.ac.uk/~vgg/data/flowers/102/index.html).
+This is for training a deep convolutional neural network to classify images in the [Oxford 102 category flower dataset](http://www.robots.ox.ac.uk/~vgg/data/flowers/102/index.html).
 
 Download the Oxford 102 category images, labels, and splits:
 
 `./get_oxford102.sh`
 
-Set the environment variable `CAFFE_HOME` to point to your installation of Caffe, then create the Caffe style training and testing set files:
+Set the environment variable `CAFFE_HOME` to point to your installation of [Caffe](http://caffe.berkeleyvision.org/), then create the Caffe style training and testing set files:
 
 `./create_caffe_splits.py`
 
 The split file (setid.mat) lists 6,149 images in the test set and 1,020 images in the training set. We have instead trained this model on the larger set of 6,149 images and tested against the smaller set of 1,020 images. See https://github.com/jgoode21/caffe-oxford102 for utilities to download the data and convert it into Caffe format.
 
-The CNN is a fine-tuned BVLC reference CaffeNet (modified AlexNet trained on ILSVRC 2012). The number of outputs in the inner product layer has been set to 102 to reflect the number of flower categories. Learning rate and step sized are reduced as recommended in the Flickr fine-tuning example (http://caffe.berkeleyvision.org/gathered/examples/finetune_flickr_style.html).
+The CNN is a fine-tuned BVLC reference CaffeNet (modified AlexNet trained on ILSVRC 2012). The number of outputs in the inner product layer has been set to 102 to reflect the number of flower categories. Learning rate and step sized are reduced as recommended for [Flickr fine-tuning](http://caffe.berkeleyvision.org/gathered/examples/finetune_flickr_style.html).
 
 To fit the model with initial CaffeNet's weights:
 
