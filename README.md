@@ -5,15 +5,8 @@ Download the Oxford 102 category dataset:
 
 `./get_oxford102.sh`
 
-Create the Caffe style training and testing set files:
+Set the environment variable `CAFFE_HOME` to point to your installation of Caffe, then create the Caffe style training and testing set files:
 
 `./create_caffe_splits.py`
-
-Assuming you have Caffe installed in `CAFFE_HOME`, copy over the test.txt and train.txt files to there:
-
-```
-mkdir $CAFFE_HOME/data/oxford102
-cp data/train.txt data/test.txt $CAFFE_HOME/data/oxford102
-```
 
 
