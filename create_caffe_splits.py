@@ -38,4 +38,4 @@ OXFORD_DATA = CAFFE_HOME + '/data/oxford102'
 if not os.path.exists(OXFORD_DATA):
     os.mkdir(OXFORD_DATA)
 write_set_file(OXFORD_DATA + '/train.txt', labels[idx_train_perm,:])
-write_set_file(OXFORD_DATA + '/data/oxford102/test.txt', labels[idx_test_perm,:])
+write_set_file(OXFORD_DATA + '/test.txt', labels[idx_test_perm,:])
