@@ -29,6 +29,7 @@ def write_set_file(fout, labels):
 np.random.seed(777)
 idx_test_perm = idx_test[np.random.permutation(len(idx_test))]
 idx_train_perm = idx_train[np.random.permutation(len(idx_train))]
+idx_valid_perm = idx_valid[np.random.permutation(len(idx_valid))]
 
 CAFFE_HOME = os.getenv('CAFFE_HOME', '')
 if CAFFE_HOME == '':
@@ -39,3 +40,4 @@ if not os.path.exists(OXFORD_DATA):
     os.mkdir(OXFORD_DATA)
 write_set_file(OXFORD_DATA + '/train.txt', labels[idx_train_perm,:])
 write_set_file(OXFORD_DATA + '/test.txt', labels[idx_test_perm,:])
+write_set_file(OXFORD_DATA + '/valid.txt', labels[idx_valid_perm,:])
