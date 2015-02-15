@@ -9,9 +9,9 @@ Set the environment variable `CAFFE_HOME` to point to your installation of [Caff
 
 `./create_caffe_splits.py`
 
-The split file (setid.mat) lists 6,149 images in the test set and 1,020 images in the training set. We have instead trained this model on the larger set of 6,149 images and tested against the smaller set of 1,020 images. See https://github.com/jgoode21/caffe-oxford102 for utilities to download the data and convert it into Caffe format.
+The split file (setid.mat) lists 6,149 images in the test set and 1,020 images in the training set. We have instead trained this model on the larger set of 6,149 images and tested against the smaller set of 1,020 images.
 
-The CNN is a fine-tuned BVLC reference CaffeNet (modified AlexNet trained on ILSVRC 2012). The number of outputs in the inner product layer has been set to 102 to reflect the number of flower categories. Learning rate and step sized are reduced as recommended for [Flickr fine-tuning](http://caffe.berkeleyvision.org/gathered/examples/finetune_flickr_style.html).
+The CNN is a fine-tuned BVLC reference CaffeNet (modified [AlexNet](http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks) trained on ILSVRC 2012). The number of outputs in the inner product layer has been set to 102 to reflect the number of flower categories. Learning rate and step sized are reduced as recommended for [Flickr fine-tuning](http://caffe.berkeleyvision.org/gathered/examples/finetune_flickr_style.html).
 
 To fit the model with initial CaffeNet's weights:
 
