@@ -19,11 +19,12 @@ image_labels -= 1
 
 files = sorted(glob.glob('data/oxford102/jpg/*.jpg'))
 labels = np.array(zip(files, image_labels))
+cwd = os.path.dirname(os.path.realpath(__file__))
 
 def write_set_file(fout, labels):
     with open(fout, 'w+') as f:
         for label in labels:
-            f.write('%s %s\n' % (label[0], label[1]))
+            f.write('%s/%s %s\n' % (cwd, label[0], label[1]))
 
 np.random.seed(777)
 idx_test_perm = idx_test[np.random.permutation(len(idx_test))]
