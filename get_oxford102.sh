@@ -5,6 +5,7 @@
 # - images labels
 # - the training/testing/validation splits
 
+mkdir data
 cd data
 
 echo "Downloading flower images..."
