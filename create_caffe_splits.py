@@ -25,9 +25,13 @@ def write_set_file(fout, labels):
             f.write('%s %s\n' % (label[0], label[1]))
 
 np.random.seed(777)
-
 idx_test_perm = idx_test[np.random.permutation(len(idx_test))]
 idx_train_perm = idx_train[np.random.permutation(len(idx_train))]
 
-write_set_file('data/train.txt', labels[idx_train_perm,:])
-write_set_file('data/test.txt', labels[idx_test_perm,:])
+CAFFE_HOME = os.getenv('CAFFE_HOME', '')
+if CAFFE_HOME == '':
+    raise Exception('CAFFE_HOME must be set to the location of your Caffe installation.')
+
+os.mkdir(CAFFE_HOME + '/data/oxford102')
+write_set_file(CAFFE_HOME + '/data/oxford102/train.txt', labels[idx_train_perm,:])
+write_set_file(CAFFE_HOME + '/data/oxford102/test.txt', labels[idx_test_perm,:])
