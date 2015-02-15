@@ -28,4 +28,6 @@ I0215 15:28:30.835072  6585 solver.cpp:251] Optimization Done.
 I0215 15:28:30.835083  6585 caffe.cpp:121] Optimization Done.
 ```
 
-Not that this uses the mean file for ILSVRC 2012 instead of the mean for the actual Oxford dataset.
+The Caffe model can be downloaded at https://s3.amazonaws.com/jgoode/oxford102_iter_10000.caffemodel.
+
+Note that this uses the mean file for ILSVRC 2012 instead of the mean for the actual Oxford dataset.
