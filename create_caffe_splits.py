@@ -34,6 +34,8 @@ CAFFE_HOME = os.getenv('CAFFE_HOME', '')
 if CAFFE_HOME == '':
     raise Exception('CAFFE_HOME must be set to the location of your Caffe installation.')
 
-os.mkdir(CAFFE_HOME + '/data/oxford102')
-write_set_file(CAFFE_HOME + '/data/oxford102/train.txt', labels[idx_train_perm,:])
-write_set_file(CAFFE_HOME + '/data/oxford102/test.txt', labels[idx_test_perm,:])
+OXFORD_DATA = CAFFE_HOME + '/data/oxford102'
+if not os.path.exists(OXFORD_DATA):
+    os.mkdir(OXFORD_DATA)
+write_set_file(OXFORD_DATA + '/train.txt', labels[idx_train_perm,:])
+write_set_file(OXFORD_DATA + '/data/oxford102/test.txt', labels[idx_test_perm,:])
