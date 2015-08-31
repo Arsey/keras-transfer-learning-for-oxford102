@@ -20,6 +20,7 @@ The CNN is a fine-tuned BVLC reference CaffeNet (modified [AlexNet](http://paper
 To fit the model with initial CaffeNet's weights:
 
 ```bash
+cd $CAFFE_HOME
 ./build/tools/caffe train -solver models/oxford102/solver.prototxt -weights models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel
 ```
 
