@@ -36,6 +36,7 @@ I0215 15:28:30.835083  6585 caffe.cpp:121] Optimization Done.
 The Caffe model can be downloaded at https://s3.amazonaws.com/jgoode/oxford102.caffemodel. You can also use the Caffe utility to download this model from its [gist](https://gist.github.com/jgoode21/0179e52305ca768a601f):
 
 ```bash
+cd $CAFFE_HOME
 ./scripts/download_model_from_gist.sh 0179e52305ca768a601f <dirname>
 ```
 Note that this uses the mean file for ILSVRC 2012 instead of the mean for the actual Oxford dataset.
