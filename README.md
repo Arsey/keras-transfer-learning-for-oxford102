@@ -3,11 +3,15 @@ This is for training a deep convolutional neural network to classify images in t
 
 Download the Oxford 102 category images, labels, and splits:
 
-`./get_oxford102.sh`
+```bash
+./get_oxford102.sh
+```
 
 Set the environment variable `CAFFE_HOME` to point to your installation of [Caffe](http://caffe.berkeleyvision.org/), then create the Caffe style training and testing set files:
 
-`./create_caffe_splits.py`
+```bash
+./create_caffe_splits.py
+```
 
 The split file (setid.mat) lists 6,149 images in the test set and 1,020 images in the training set. We have instead trained this model on the larger set of 6,149 images and tested against the smaller set of 1,020 images.
 
@@ -15,7 +19,7 @@ The CNN is a fine-tuned BVLC reference CaffeNet (modified [AlexNet](http://paper
 
 To fit the model with initial CaffeNet's weights:
 
-```
+```bash
 ./build/tools/caffe train -solver models/oxford102/solver.prototxt -weights models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel
 ```
 
@@ -30,10 +34,13 @@ I0215 15:28:30.835083  6585 caffe.cpp:121] Optimization Done.
 
 The Caffe model can be downloaded at https://s3.amazonaws.com/jgoode/oxford102.caffemodel. You can also use the Caffe utility to download this model from its [gist](https://gist.github.com/jgoode21/0179e52305ca768a601f):
 
-`./scripts/download_model_from_gist.sh 0179e52305ca768a601f <dirname>`
-
+```bash
+./scripts/download_model_from_gist.sh 0179e52305ca768a601f <dirname>
+```
 Note that this uses the mean file for ILSVRC 2012 instead of the mean for the actual Oxford dataset.
 
-The class labels were deduced by @m-co:
+The class labels were deduced by Github user [m-co](https://github.com/m-co) and are as follows:
 
+```
 ['pink primrose', 'hard-leaved pocket orchid', 'canterbury bells', 'sweet pea', 'english marigold', 'tiger lily', 'moon orchid', 'bird of paradise', 'monkshood', 'globe thistle', 'snapdragon', "colt's foot", 'king protea', 'spear thistle', 'yellow iris', 'globe-flower', 'purple coneflower', 'peruvian lily', 'balloon flower', 'giant white arum lily', 'fire lily', 'pincushion flower', 'fritillary', 'red ginger', 'grape hyacinth', 'corn poppy', 'prince of wales feathers', 'stemless gentian', 'artichoke', 'sweet william', 'carnation', 'garden phlox', 'love in the mist', 'mexican aster', 'alpine sea holly', 'ruby-lipped cattleya', 'cape flower', 'great masterwort', 'siam tulip', 'lenten rose', 'barbeton daisy', 'daffodil', 'sword lily', 'poinsettia', 'bolero deep blue', 'wallflower', 'marigold', 'buttercup', 'oxeye daisy', 'common dandelion', 'petunia', 'wild pansy', 'primula', 'sunflower', 'pelargonium', 'bishop of llandaff', 'gaura', 'geranium', 'orange dahlia', 'pink-yellow dahlia?', 'cautleya spicata', 'japanese anemone', 'black-eyed susan', 'silverbush', 'californian poppy', 'osteospermum', 'spring crocus', 'bearded iris', 'windflower', 'tree poppy', 'gazania', 'azalea', 'water lily', 'rose', 'thorn apple', 'morning glory', 'passion flower', 'lotus', 'toad lily', 'anthurium', 'frangipani', 'clematis', 'hibiscus', 'columbine', 'desert-rose', 'tree mallow', 'magnolia', 'cyclamen ', 'watercress', 'canna lily', 'hippeastrum ', 'bee balm', 'ball moss', 'foxglove', 'bougainvillea', 'camellia', 'mallow', 'mexican petunia', 'bromelia', 'blanket flower', 'trumpet creeper', 'blackberry lily']
+```
