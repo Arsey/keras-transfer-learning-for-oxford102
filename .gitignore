@@ -6,3 +6,5 @@ data
 *.caffemodel
 *.solverstate
 gitpush.sh
+*.pyc
+*.ipynb_checkpoints
