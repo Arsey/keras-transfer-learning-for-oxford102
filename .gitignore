@@ -3,3 +3,6 @@
 .#*
 *.DS_Store
 data
+*.caffemodel
+*.solverstate
+gitpush.sh

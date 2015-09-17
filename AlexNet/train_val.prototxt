@@ -1,18 +1,18 @@
-name: "Oxford102CaffeNet"
+name: "Oxford102_CaffeNet"
 layers {
   name: "data"
   type: IMAGE_DATA
   top: "data"
   top: "label"
   image_data_param {
-    source: "data/oxford102/test.txt"
+    source: "/home/ubuntu/git/caffe-oxford102/train.txt"
     batch_size: 50
     new_height: 256
     new_width: 256
   }
   transform_param {
     crop_size: 227
-    mean_file: "data/ilsvrc12/imagenet_mean.binaryproto"
+    mean_file: "/home/ubuntu/caffe/data/ilsvrc12/imagenet_mean.binaryproto"
     mirror: true
   }
   include: { phase: TRAIN }
@@ -23,14 +23,14 @@ layers {
   top: "data"
   top: "label"
   image_data_param {
-    source: "data/oxford102/train.txt"
+    source: "/home/ubuntu/git/caffe-oxford102/test.txt"
     batch_size: 50
     new_height: 256
     new_width: 256
   }
   transform_param {
     crop_size: 227
-    mean_file: "data/ilsvrc12/imagenet_mean.binaryproto"
+    mean_file: "/home/ubuntu/caffe/data/ilsvrc12/imagenet_mean.binaryproto"
     mirror: false
   }
   include: { phase: TEST }

@@ -1,0 +1,20 @@
+# Settings follow the example for fine-tuning on Flickr style images:
+# http://caffe.berkeleyvision.org/gathered/examples/finetune_flickr_style.html
+
+net: "train_val.prototxt"
+test_iter: 124        # enough iterations to cover the 6,149 images with a batch size of 50
+test_interval: 500  
+base_lr: 0.001        # lr for fine-tuning should be lower than when starting from scratch
+lr_policy: "step"
+gamma: 0.1
+stepsize: 20000       # stepsize should also be lower, as we're closer to being done
+display: 50
+max_iter: 50000
+momentum: 0.9
+weight_decay: 0.0005
+snapshot: 10000
+snapshot_prefix: "snapshot"
+solver_mode: GPU
+
+# Command to run:
+#/home/ubuntu/caffe/build/tools/caffe train -solver solver.prototxt -weights pretrained-weights.caffemodel -gpu 0
