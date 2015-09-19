@@ -5,7 +5,8 @@ layers {
   top: "data"
   top: "label"
   image_data_param {
-    source: "/home/ubuntu/git/caffe-oxford102/train.txt"
+    #source: "/home/ubuntu/git/caffe-oxford102/train.txt"
+	source: "/home/ubuntu/git/caffe-oxford102/test.txt" # Flipped
     batch_size: 50
     new_height: 256
     new_width: 256
@@ -23,7 +24,8 @@ layers {
   top: "data"
   top: "label"
   image_data_param {
-    source: "/home/ubuntu/git/caffe-oxford102/test.txt"
+    #source: "/home/ubuntu/git/caffe-oxford102/test.txt"
+	source: "/home/ubuntu/git/caffe-oxford102/train.txt" # Flipped	
     batch_size: 50
     new_height: 256
     new_width: 256
