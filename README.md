@@ -17,7 +17,7 @@ The categories are split into training, testing, and validation sets. It seems o
 
 ## AlexNet
 
-This model is a [slightly modified](http://caffe.berkeleyvision.org/gathered/examples/imagenet.html) version of the [ILSVR 2012](http://www.image-net.org/challenges/LSVRC/2012/) winning [AlexNet](http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks). The number of outputs in the inner product layer has been set to 102 to reflect the number of flower categories. Hyperparameter choices in `AlexNet/solver.prototxt` reflect those in [Fine-tuning CaffeNet for Style Recognition on “Flickr Style” Data](http://caffe.berkeleyvision.org/gathered/examples/finetune_flickr_style.html). The global learning rate is reduced while the learning rate for the final fully connected layer is increased relative to the other layers.
+This model is a [slightly modified](http://caffe.berkeleyvision.org/gathered/examples/imagenet.html) version of the [ILSVR 2012](http://www.image-net.org/challenges/LSVRC/2012/) winning [AlexNet](http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks). The number of outputs in the final dense layer has been set to 102 to reflect the number of flower categories. Hyperparameter choices in `AlexNet/solver.prototxt` reflect those in [Fine-tuning CaffeNet for Style Recognition on “Flickr Style” Data](http://caffe.berkeleyvision.org/gathered/examples/finetune_flickr_style.html). The global learning rate is reduced while the learning rate for the final fully connected layer is increased relative to the other layers.
 
 Once you've run the `bootstrap.py` script, you can begin training from this directory with:
 
@@ -64,6 +64,8 @@ I0917 13:26:48.291549 17111 solver.cpp:464] Iteration 14450, lr = 0.001
 I0917 13:27:52.307510 17111 solver.cpp:266] Iteration 14500, Testing net (#0)
 I0917 13:28:50.950788 17111 solver.cpp:315]     Test net output #0: accuracy = 0.951129
 ```
+
+These weights can be downloaded at https://s3.amazonaws.com/jgoode/oxford102_VGG_S_iter_20000.caffemodel.
 
 AlexNet uses a crop size of 227 x 227, while VGG_S uses 224 x 224, so it's not an exact comparison.
 
