@@ -7,7 +7,6 @@ start_time = time.time()
 
 from keras.applications.vgg16 import VGG16
 from keras.preprocessing.image import img_to_array, load_img
-from keras.optimizers import SGD
 import config
 import class_labels
 
@@ -20,9 +19,6 @@ assert os.path.exists(img_path), True
 
 model = VGG16(weights=None, include_top=True)
 model.load_weights(config.fine_tuned_weights_path)
-model.compile(
-    loss='categorical_crossentropy',
-    optimizer=SGD(lr=0.0001, decay=1e-6, momentum=0.9, nesterov=True))
 
 
 def predict(path):
