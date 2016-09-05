@@ -8,3 +8,5 @@ data
 gitpush.sh
 *.pyc
 *.ipynb_checkpoints
+.idea
+trained
