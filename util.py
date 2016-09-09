@@ -4,15 +4,14 @@ import numpy as np
 import config
 
 
-def save_history(history, prefix, lr=None, output_dim=None, nb_epoch=None, img_size=None, nb_train_samples=None):
-    img_path = '{}/{}-%s(lr={}, output_dim={}, nb_epoch={}, img_size={}, nb_train_samples={}).jpg'.format(
+def save_history(history, prefix, lr=None, output_dim=None, nb_epoch=None, img_size=None):
+    img_path = '{}/{}-%s(lr={}, output_dim={}, nb_epoch={}, img_size={}).jpg'.format(
         config.plots_dir,
         prefix,
         lr,
         output_dim,
         nb_epoch,
-        img_size,
-        nb_train_samples)
+        img_size)
 
     # summarize history for accuracy
     plt.plot(history.history['acc'])

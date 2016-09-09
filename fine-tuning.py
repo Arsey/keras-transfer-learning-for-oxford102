@@ -80,7 +80,6 @@ util.save_history(
     history=history,
     prefix='fine-tuning',
     nb_epoch=nb_epoch,
-    img_size=config.img_size,
-    nb_train_samples=nb_train_samples)
+    img_size=config.img_size)
 
 model.save_weights(config.fine_tuned_weights_path)
