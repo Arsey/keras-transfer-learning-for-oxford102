@@ -1,6 +1,8 @@
 import os
 import numpy as np
 
+np.random.seed(1337)  # for reproducibility
+
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Flatten, Dense, Dropout
@@ -10,7 +12,7 @@ from keras.applications.vgg16 import VGG16
 import util
 import config
 
-nb_epoch = 22
+nb_epoch = 19 # the most optimal number
 batch_size = 32
 lr = 0.001
 nb_train_samples, nb_validation_samples = util.get_samples_info()
@@ -57,9 +59,9 @@ def train_top_model():
     model = Sequential()
     model.add(Flatten(input_shape=train_data.shape[1:]))
     model.add(Dense(config.output_dim, activation='relu'))
-    # model.add(Dropout(0.2))
+    model.add(Dropout(0.2))
     model.add(Dense(config.output_dim, activation='relu'))
-    # model.add(Dropout(0.2))
+    model.add(Dropout(0.2))
     model.add(Dense(config.nb_classes, activation='softmax'))
 
     sgd = SGD(lr=lr, decay=1e-6, momentum=0.9, nesterov=True)

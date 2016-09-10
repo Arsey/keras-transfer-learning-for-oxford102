@@ -1,4 +1,7 @@
 import h5py as h5
+import numpy as np
+
+np.random.seed(1337)  # for reproducibility
 
 from keras.models import Model
 from keras.layers import Flatten, Dense, Input
@@ -20,7 +23,7 @@ print('Model loaded.')
 x = base_model.output
 x = Flatten()(x)
 
-weights_file = h5.File(config.top_model_weights_path.format(24, config.output_dim))
+weights_file = h5.File(config.top_model_weights_path.format(15, config.output_dim))
 
 g = weights_file['dense_1']
 weights = [g[p] for p in g]
@@ -52,8 +55,7 @@ model.compile(
 train_datagen = ImageDataGenerator(
     rescale=1. / 255,
     shear_range=0.2,
-    zoom_range=0.2,
-    horizontal_flip=True)
+    zoom_range=0.2)
 
 train_generator = train_datagen.flow_from_directory(
     config.train_data_dir,

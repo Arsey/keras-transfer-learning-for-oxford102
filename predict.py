@@ -2,17 +2,26 @@ import argparse
 import os
 import numpy as np
 import glob
-from sklearn.metrics import accuracy_score
 import h5py as h5
 
+from sklearn.metrics import accuracy_score
 from keras.applications.vgg16 import VGG16
 from keras.preprocessing.image import img_to_array, load_img
+
 import config
 
 parser = argparse.ArgumentParser()
+
 parser.add_argument('-p', '--path', help='Path to image that should be predicted by the model')
+parser.add_argument('-e', '--epoch', help='Number epochs')
+parser.add_argument('-b', '--bottleneck', action='store_true',
+                    help='Uses bottlenecks features to predict instead of final fine tuned VGG16 weights')
+
 args = parser.parse_args()
+
 img_path = args.path
+nb_epoch = args.epoch
+use_bottleneck = args.bottleneck
 
 
 def get_inputs_and_trues(path):
@@ -28,6 +37,7 @@ def get_inputs_and_trues(path):
     for i in files:
         img = load_img(i, target_size=config.img_size)
         x = img_to_array(img)
+        x *= 1. / 255
         y_true.append(int(i.split(os.sep)[3]))
         inputs.append(x)
 
@@ -41,10 +51,8 @@ def predict(path):
     y_true, inputs = get_inputs_and_trues(path)
 
     out = model.predict(np.array(inputs))
-    y_pred = np.argmax(out, axis=1)
-    print y_true
-    print y_pred
-    print 'accuracy {}'.format(accuracy_score(y_true=y_true, y_pred=y_pred))
+    predictions = np.argmax(out, axis=1)
+    print 'accuracy {}'.format(accuracy_score(y_true=y_true, y_pred=predictions))
 
 
 def predict_from_bottleneck(path):
@@ -57,7 +65,7 @@ def predict_from_bottleneck(path):
     x = base_model.output
     x = Flatten()(x)
 
-    weights_file = h5.File(config.top_model_weights_path.format(20, config.output_dim))
+    weights_file = h5.File(config.top_model_weights_path.format(nb_epoch, config.output_dim))
 
     g = weights_file['dense_1']
     weights = [g[p] for p in g]
@@ -77,9 +85,11 @@ def predict_from_bottleneck(path):
 
     y_true, inputs = get_inputs_and_trues(path)
     out = model.predict(np.array(inputs))
-    y_pred = np.argmax(out, axis=1)
-    print 'accuracy {}'.format(accuracy_score(y_true=y_true, y_pred=y_pred))
+    predictions = np.argmax(out, axis=1)
+    print 'accuracy {}'.format(accuracy_score(y_true=y_true, y_pred=predictions))
 
 
-# predict(img_path)
-predict_from_bottleneck(img_path)
+if not use_bottleneck:
+    predict(img_path)
+else:
+    predict_from_bottleneck(img_path)
