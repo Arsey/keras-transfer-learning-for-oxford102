@@ -17,3 +17,7 @@ nb_classes = 102
 info_file_path = '{}/info.csv'.format(data_dir)
 
 output_dim = 4096
+
+# server settings
+server_address = ('127.0.0.1', 4444)
+buffer_size = 4096

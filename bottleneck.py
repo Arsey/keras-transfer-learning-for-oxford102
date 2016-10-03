@@ -12,8 +12,7 @@ from keras.applications.vgg16 import VGG16
 import util
 import config
 
-nb_epoch = 19 # the most optimal number
-batch_size = 32
+nb_epoch = 18  # 76.07% acc
 lr = 0.001
 nb_train_samples, nb_validation_samples = util.get_samples_info()
 
@@ -27,7 +26,6 @@ def save_bottleneck_features():
     generator = datagen.flow_from_directory(
         config.train_data_dir,
         target_size=config.img_size,
-        batch_size=batch_size,
         shuffle=False)
     bottleneck_features_train = model.predict_generator(generator, nb_train_samples)
     np.save(open(config.bf_train_path, 'w'), bottleneck_features_train)
@@ -35,7 +33,6 @@ def save_bottleneck_features():
     generator = datagen.flow_from_directory(
         config.validation_data_dir,
         target_size=config.img_size,
-        batch_size=batch_size,
         shuffle=False)
     bottleneck_features_validation = model.predict_generator(generator, nb_validation_samples)
     np.save(open(config.bf_valid_path, 'w'), bottleneck_features_validation)
@@ -59,9 +56,7 @@ def train_top_model():
     model = Sequential()
     model.add(Flatten(input_shape=train_data.shape[1:]))
     model.add(Dense(config.output_dim, activation='relu'))
-    model.add(Dropout(0.2))
     model.add(Dense(config.output_dim, activation='relu'))
-    model.add(Dropout(0.2))
     model.add(Dense(config.nb_classes, activation='softmax'))
 
     sgd = SGD(lr=lr, decay=1e-6, momentum=0.9, nesterov=True)
@@ -73,6 +68,8 @@ def train_top_model():
         nb_epoch=nb_epoch,
         validation_data=(validation_data, validation_labels))
 
+    model.save_weights(config.top_model_weights_path.format(nb_epoch, config.output_dim))
+
     util.save_history(
         history=history,
         prefix='bottleneck',
@@ -81,8 +78,6 @@ def train_top_model():
         nb_epoch=nb_epoch,
         img_size=config.img_size)
 
-    model.save_weights(config.top_model_weights_path.format(nb_epoch, config.output_dim))
 
-
-save_bottleneck_features()
+# save_bottleneck_features()
 train_top_model()

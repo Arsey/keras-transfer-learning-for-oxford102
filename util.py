@@ -1,7 +1,13 @@
+import matplotlib
+
+matplotlib.use('Agg')
+
 import matplotlib.pyplot as plt
 import numpy as np
-
+import h5py as h5
+from keras.preprocessing import image as image_preprocessing
 import config
+import os
 
 
 def save_history(history, prefix, lr=None, output_dim=None, nb_epoch=None, img_size=None):
@@ -40,3 +46,47 @@ def get_samples_info():
     nb_validation_samples = int(info[2])
 
     return nb_train_samples, nb_validation_samples
+
+
+def load_model(weights_path=None):
+    from keras.models import Model
+    from keras.layers import Flatten, Dense, Input
+    from keras.applications.vgg16 import VGG16
+
+    base_model = VGG16(weights='imagenet', include_top=False, input_tensor=Input(shape=(3,) + config.img_size))
+
+    x = base_model.output
+    x = Flatten()(x)
+
+    if weights_path:
+        weights_file = h5.File(os.path.dirname(os.path.abspath(__file__)) + '/' + weights_path)
+
+        g = weights_file['dense_1']
+        weights = [g[p] for p in g]
+        x = Dense(config.output_dim, activation='relu', weights=weights)(x)
+
+        g = weights_file['dense_2']
+        weights = [g[p] for p in g]
+        x = Dense(config.output_dim, activation='relu', weights=weights)(x)
+
+        g = weights_file['dense_3']
+        weights = [g[p] for p in g]
+        predictions = Dense(config.nb_classes, activation='softmax', weights=weights)(x)
+
+        weights_file.close()
+
+    else:
+        x = Dense(config.output_dim, activation='relu')(x)
+        x = Dense(config.output_dim, activation='relu')(x)
+        predictions = Dense(config.nb_classes, activation='softmax')(x)
+
+    model = Model(input=base_model.input, output=predictions)
+
+    return model
+
+
+def load_img(path):
+    img = image_preprocessing.load_img(path, target_size=config.img_size)
+    x = image_preprocessing.img_to_array(img)
+    x *= 1. / 255
+    return x

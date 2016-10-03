@@ -4,7 +4,7 @@ import numpy as np
 np.random.seed(1337)  # for reproducibility
 
 from keras.models import Model
-from keras.layers import Flatten, Dense, Input
+from keras.layers import Flatten, Dense, Input, Dropout
 from keras.optimizers import SGD
 from keras.preprocessing.image import ImageDataGenerator
 from keras.applications.vgg16 import VGG16
@@ -12,30 +12,29 @@ from keras.applications.vgg16 import VGG16
 import util
 import config
 
-nb_epoch = 10
+nb_epoch = 2
 batch_size = 32
 lr = 0.0001
 nb_train_samples, nb_validation_samples = util.get_samples_info()
 
 base_model = VGG16(weights='imagenet', include_top=False, input_tensor=Input(shape=(3,) + config.img_size))
-print('Model loaded.')
 
 x = base_model.output
-x = Flatten()(x)
+x = Flatten(name='flatten', input_shape=base_model.output_shape[1:])(x)
 
-weights_file = h5.File(config.top_model_weights_path.format(15, config.output_dim))
+weights_file = h5.File(config.top_model_weights_path.format(19, config.output_dim))
 
 g = weights_file['dense_1']
 weights = [g[p] for p in g]
-x = Dense(config.output_dim, activation='relu', weights=weights)(x)
+x = Dense(config.output_dim, activation='relu', weights=weights, name='fc1')(x)
 
 g = weights_file['dense_2']
 weights = [g[p] for p in g]
-x = Dense(config.output_dim, activation='relu', weights=weights)(x)
+x = Dense(config.output_dim, activation='relu', weights=weights, name='fc2')(x)
 
 g = weights_file['dense_3']
 weights = [g[p] for p in g]
-predictions = Dense(config.nb_classes, activation='softmax', weights=weights)(x)
+predictions = Dense(config.nb_classes, activation='softmax', weights=weights, name='predictions')(x)
 
 weights_file.close()
 
@@ -55,7 +54,8 @@ model.compile(
 train_datagen = ImageDataGenerator(
     rescale=1. / 255,
     shear_range=0.2,
-    zoom_range=0.2)
+    zoom_range=0.2,
+    horizontal_flip=True)
 
 train_generator = train_datagen.flow_from_directory(
     config.train_data_dir,
@@ -78,10 +78,10 @@ history = model.fit_generator(
     validation_data=validation_generator,
     nb_val_samples=nb_validation_samples)
 
+model.save_weights(config.fine_tuned_weights_path)
+
 util.save_history(
     history=history,
     prefix='fine-tuning',
     nb_epoch=nb_epoch,
     img_size=config.img_size)
-
-model.save_weights(config.fine_tuned_weights_path)
