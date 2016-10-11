@@ -11,6 +11,9 @@ import os
 
 
 def save_history(history, prefix, lr=None, output_dim=None, nb_epoch=None, img_size=None):
+    if 'acc' not in history.history:
+        return
+
     img_path = '{}/{}-%s(lr={}, output_dim={}, nb_epoch={}, img_size={}).jpg'.format(
         config.plots_dir,
         prefix,
@@ -90,3 +93,7 @@ def load_img(path):
     x = image_preprocessing.img_to_array(img)
     x *= 1. / 255
     return x
+
+
+def get_numbered_classes(num):
+    return [str(x) for x in range(num)]

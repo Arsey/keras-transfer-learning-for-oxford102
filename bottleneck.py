@@ -5,7 +5,7 @@ np.random.seed(1337)  # for reproducibility
 
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
-from keras.layers import Flatten, Dense, Dropout
+from keras.layers import Flatten, Dense
 from keras.optimizers import SGD
 from keras.applications.vgg16 import VGG16
 
@@ -15,42 +15,41 @@ import config
 nb_epoch = 18  # 76.07% acc
 lr = 0.001
 nb_train_samples, nb_validation_samples = util.get_samples_info()
+classes = util.get_numbered_classes(config.nb_classes)
 
 
 def save_bottleneck_features():
     model = VGG16(weights='imagenet', include_top=False)
-    print('Model loaded.')
 
     datagen = ImageDataGenerator(rescale=1. / 255)
 
     generator = datagen.flow_from_directory(
         config.train_data_dir,
         target_size=config.img_size,
-        shuffle=False)
+        shuffle=False,
+        classes=classes)
     bottleneck_features_train = model.predict_generator(generator, nb_train_samples)
     np.save(open(config.bf_train_path, 'w'), bottleneck_features_train)
 
     generator = datagen.flow_from_directory(
         config.validation_data_dir,
         target_size=config.img_size,
-        shuffle=False)
+        shuffle=False,
+        classes=classes)
     bottleneck_features_validation = model.predict_generator(generator, nb_validation_samples)
     np.save(open(config.bf_valid_path, 'w'), bottleneck_features_validation)
 
 
 def train_top_model():
     train_data = np.load(open(config.bf_train_path, 'rb'))
+    validation_data = np.load(open(config.bf_valid_path, 'rb'))
+
     train_labels = []
-    for i in sorted(os.listdir(config.train_data_dir)):
+    validation_labels = []
+    for i in classes:
         if i != '.DS_Store':
             i = int(i)
             train_labels += [i] * len(os.listdir('{}/{}'.format(config.train_data_dir, i)))
-
-    validation_data = np.load(open(config.bf_valid_path, 'rb'))
-    validation_labels = []
-    for i in sorted(os.listdir(config.validation_data_dir)):
-        if i != '.DS_Store':
-            i = int(i)
             validation_labels += [i] * len(os.listdir('{}/{}'.format(config.validation_data_dir, i)))
 
     model = Sequential()
@@ -70,14 +69,8 @@ def train_top_model():
 
     model.save_weights(config.top_model_weights_path.format(nb_epoch, config.output_dim))
 
-    util.save_history(
-        history=history,
-        prefix='bottleneck',
-        lr=lr,
-        output_dim=config.output_dim,
-        nb_epoch=nb_epoch,
-        img_size=config.img_size)
+    util.save_history(history=history, prefix='bottleneck', output_dim=config.output_dim, nb_epoch=nb_epoch)
 
 
-# save_bottleneck_features()
+save_bottleneck_features()
 train_top_model()
