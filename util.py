@@ -5,7 +5,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import h5py as h5
-from keras.preprocessing import image as image_preprocessing
+from keras.preprocessing import image
 import config
 import os
 
@@ -89,8 +89,8 @@ def load_model(weights_path=None):
 
 
 def load_img(path):
-    img = image_preprocessing.load_img(path, target_size=config.img_size)
-    x = image_preprocessing.img_to_array(img)
+    img = image.load_img(path, target_size=config.img_size)
+    x = image.img_to_array(img)
     x *= 1. / 255
     return x
 

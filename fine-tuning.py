@@ -12,7 +12,7 @@ from keras.applications.vgg16 import VGG16
 import util
 import config
 
-nb_epoch = 20
+nb_epoch = 250
 batch_size = 32
 lr = 0.0001
 nb_train_samples, nb_validation_samples = util.get_samples_info()
