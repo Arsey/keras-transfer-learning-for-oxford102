@@ -73,9 +73,3 @@ def move_files(dir_name, labels):
 move_files('train', labels[idx_test, :])
 move_files('test', labels[idx_train, :])
 move_files('valid', labels[idx_valid, :])
-
-with open(config.info_file_path, 'w') as f:
-    f.write('{}\n'.format(len(idx_test)))
-    f.write('{}\n'.format(len(idx_train)))
-    f.write('{}\n'.format(len(idx_valid)))
-f.close()
