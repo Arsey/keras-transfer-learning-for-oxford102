@@ -15,3 +15,8 @@ img_size = (224, 224)
 # server settings
 server_address = ('127.0.0.1', 4444)
 buffer_size = 4096
+
+classes = []
+
+nb_train_samples = 0
+nb_validation_samples = 0

@@ -5,7 +5,7 @@ import util
 import numpy as np
 import os
 
-weight_path = config.top_model_weights_path.format(19, config.output_dim)
+weight_path = config.top_model_weights_path
 model = util.load_model(weight_path)
 print 'Model loaded.'
 

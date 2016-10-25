@@ -4,7 +4,6 @@ import os
 import numpy as np
 import glob
 from sklearn.metrics import accuracy_score
-
 import config
 import util
 
@@ -12,16 +11,22 @@ tic = time.clock()
 parser = argparse.ArgumentParser()
 
 parser.add_argument('-p', '--path', help='Path to image that should be predicted by the model')
-parser.add_argument('-e', '--epoch', help='Number epochs')
 parser.add_argument('-a', '--accuracy', action='store_true', help='To print accuracy score')
-parser.add_argument('-t', '--time', action='store_true')
+parser.add_argument('-e', '--execution_time', action='store_true')
+parser.add_argument('-t', '--train_dir', help='Path to data train directory')
 
 args = parser.parse_args()
 
 img_path = args.path
-nb_epoch = args.epoch
 show_accuracy = args.accuracy
-show_time = args.time
+show_time = args.execution_time
+train_dir = args.train_dir
+
+if train_dir:
+    config.train_dir = train_dir
+
+config.classes = util.get_classes_from_train_dir()
+classes_in_keras_format = util.get_classes_in_keras_format()
 
 
 def get_inputs_and_trues(path):
@@ -35,29 +40,26 @@ def get_inputs_and_trues(path):
     y_true = []
     for i in files:
         x = util.load_img(i)
-        y_true.append(int(i.split(os.sep)[3]))
+        image_class = i.split(os.sep)[-2]
+        keras_class = int(classes_in_keras_format[image_class])
+        y_true.append(keras_class)
         inputs.append(x)
-    return y_true, inputs
+    return y_true, inputs, files
 
 
 def predict(path):
-    classes = util.get_classes_from_train_dir()
-
-    model = util.load_model(nb_class=len(classes))
+    model = util.load_model(nb_class=len(config.classes))
     model.load_weights(config.fine_tuned_weights_path)
 
-    y_true, inputs = get_inputs_and_trues(path)
+    y_true, inputs, files = get_inputs_and_trues(path)
 
     out = model.predict(np.array(inputs))
     predictions = np.argmax(out, axis=1)
 
-    class_indices = dict(zip(classes, range(len(classes))))
-    keys = class_indices.keys()
-    values = class_indices.values()
     for i, p in enumerate(predictions):
-        predictions[i] = keys[values.index(p)]
+        recognized_class = classes_in_keras_format.keys()[classes_in_keras_format.values().index(p)]
 
-    print predictions[0] if len(predictions) == 1 else predictions
+        print '{} ({}) --->>> {} ({})'.format(y_true[i], files[i].split(os.sep)[-2], p, recognized_class)
 
     if show_accuracy:
         print 'accuracy {}'.format(accuracy_score(y_true=y_true, y_pred=predictions))

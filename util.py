@@ -74,22 +74,17 @@ def get_top_model_for_VGG16(nb_class=None, shape=None, W_regularizer=False, weig
     if not output:
         inputs = Input(shape=shape)
         x = Flatten(name='flatten')(inputs)
-        print 'Top model without VGG16'
     else:
         x = Flatten(name='flatten', input_shape=shape)(output)
-        print 'Top model + VGG16'
 
     #############################
-
     weights_file = None
     if weights_file_path:
-        print 'Weights file: ' + weights_file_path
         weights_file = h5.File(config.top_model_weights_path)
 
     #############################
     if W_regularizer:
         W_regularizer = l2(1e-2)
-        print 'W_regularizer is ON'
 
     weights_1 = get_layer_weights(weights_file, 'fc1')
     x = Dense(4096, activation='relu', W_regularizer=W_regularizer, weights=weights_1, name='fc1')(x)
@@ -109,7 +104,6 @@ def get_top_model_for_VGG16(nb_class=None, shape=None, W_regularizer=False, weig
 
     #############################
     weights_3 = get_layer_weights(weights_file, 'predictions')
-    print 'Number of classes: {}'.format(nb_class)
     predictions = Dense(nb_class, activation='softmax', weights=weights_3, name='predictions')(x)
     #############################
 
@@ -148,8 +142,7 @@ def load_img(path):
 def get_classes_from_train_dir():
     """Returns classes based on directories in train directory"""
     d = config.train_dir
-    classes = [o for o in os.listdir(d) if os.path.isdir(os.path.join(d, o))]
-    return classes
+    return [o for o in os.listdir(d) if os.path.isdir(os.path.join(d, o))]
 
 
 def override_keras_directory_iterator_next():
@@ -175,3 +168,9 @@ def override_keras_directory_iterator_next():
 def apply_mean(image_data_generator):
     """Subtracts the VGG dataset mean"""
     image_data_generator.mean = np.array([103.939, 116.779, 123.68], dtype=np.float32).reshape((3, 1, 1))
+
+
+def get_classes_in_keras_format():
+    if config.classes:
+        return dict(zip(config.classes, range(len(config.classes))))
+    return None
