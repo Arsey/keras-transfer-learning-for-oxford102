@@ -142,7 +142,7 @@ def load_img(path):
 def get_classes_from_train_dir():
     """Returns classes based on directories in train directory"""
     d = config.train_dir
-    return [o for o in os.listdir(d) if os.path.isdir(os.path.join(d, o))]
+    return sorted([o for o in os.listdir(d) if os.path.isdir(os.path.join(d, o))])
 
 
 def override_keras_directory_iterator_next():

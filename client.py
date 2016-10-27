@@ -1,9 +1,6 @@
 import socket
 import argparse
 import config
-import time
-
-tic = time.time()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-p', '--path', help='Path to image that should be predicted by the model')
@@ -17,7 +14,6 @@ s.send(img_path)
 while 1:
     data = s.recv(config.buffer_size)
     if data:
-        toc = time.time()
         print data
         break
 
