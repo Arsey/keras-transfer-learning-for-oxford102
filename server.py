@@ -19,10 +19,11 @@ classes_in_keras_format = util.get_classes_in_keras_format()
 
 model = util.load_model(nb_class=len(config.classes))
 model.load_weights(config.fine_tuned_weights_path)
+
 print 'Model loaded'
 
-FILE_DOES_NOT_EXIST = -1
-UNKNOWN_ERROR = -2
+FILE_DOES_NOT_EXIST = '-1'
+UNKNOWN_ERROR = '-2'
 
 
 def handle(clientsocket):
@@ -44,7 +45,7 @@ def handle(clientsocket):
 
                 response = '{"probability":"%s","class":"%s"}' % (out[0][prediction[0]], answer)
                 print response
-                clientsocket.sendall(str(response))
+                clientsocket.sendall(response)
             except Exception as e:
                 print e.message
                 clientsocket.sendall(UNKNOWN_ERROR)
