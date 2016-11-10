@@ -29,7 +29,7 @@ python train.py
 
 Using `predict.py`:
 ```
-python predict.py -p "data/sorted/test/24/image_06592.jpg"
+python predict.py -p "/path/to/image"
 ```
 
 Using `server.py` + `client.py`:
@@ -40,5 +40,5 @@ python server.py
 ```
 2. send requests using client
 ```
-python client.py -p "path/to/image"
+python client.py -p "/path/to/image"
 ```
