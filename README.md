@@ -2,7 +2,9 @@
 
 This bootstraps the training of deep convolutional neural networks with [Keras](https://keras.io/) to classify images in the [Oxford 102 category flower dataset](http://www.robots.ox.ac.uk/~vgg/data/flowers/102/index.html).
 
-**Train process is fully automated and best weights for model are saving**
+**Train process is fully automated and the best weights for the model will be saved.**
+
+**This code can be used for any dataset, just follow the original files structure in data/sorted directory after running `bootstrap.py`. If you wish to store your dataset somewhere else, you can do it and run `train.py` with setting a path to dataset with a special parameter `--data_dir==path/to/your/sorted/data`**
 
 
 ## Overview
