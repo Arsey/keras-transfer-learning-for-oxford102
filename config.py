@@ -22,8 +22,8 @@ bf_valid_path = join_path(trained_dir, 'bottleneck_features_validation.npy')
 top_model_weights_path = join_path(trained_dir, 'top-model-weights.h5')
 fine_tuned_weights_path = join_path(trained_dir, 'fine-tuned-vgg16-weights.h5')
 
-#activations_path = join_path(trained_dir, 'activations.csv')
-#relativity_model_path = join_path(trained_dir, 'relativity-model')
+activations_path = join_path(trained_dir, 'activations.csv')
+relativity_model_path = join_path(trained_dir, 'relativity-model')
 
 plots_dir = 'plots'
 

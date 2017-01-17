@@ -7,6 +7,7 @@ import numpy as np
 import h5py as h5
 import os
 import glob
+import pandas as pd
 
 from keras.preprocessing import image
 from keras.applications.imagenet_utils import preprocess_input
@@ -14,6 +15,7 @@ from keras.models import Model
 from keras.regularizers import l2
 from keras.layers import Flatten, Dense, Dropout, Input
 from keras.applications.vgg16 import VGG16
+from keras import backend as K
 
 import config
 
@@ -70,7 +72,7 @@ def get_layer_weights(weights_file=None, layer_name=None):
         return weights
 
 
-def get_top_model_for_VGG16(nb_class=None, shape=None, W_regularizer=False, weights_file_path=None, input=None, output=None):
+def get_top_model_for_VGG16(nb_class=None, shape=None, W_regularizer=None, weights_file_path=None, input=None, output=None):
     if not output:
         inputs = Input(shape=shape)
         x = Flatten(name='flatten')(inputs)
@@ -174,3 +176,29 @@ def get_classes_in_keras_format():
     if config.classes:
         return dict(zip(config.classes, range(len(config.classes))))
     return None
+
+
+def get_activation_function(m, layer):
+    x = [m.layers[0].input, K.learning_phase()]
+    y = [m.get_layer(layer).output]
+    return K.function(x, y)
+
+
+def get_activations(activation_function, X_batch):
+    activations = activation_function([X_batch, 0])
+    return activations[0][0]
+
+
+def save_activations(model, inputs, files):
+    all_activations = []
+    ids = []
+    af = get_activation_function(model, 'fc2')
+    for i in range(len(inputs)):
+        acts = get_activations(af, [inputs[i]])
+        all_activations.append(acts)
+        ids.append(files[i].split('/')[-2])
+
+    submission = pd.DataFrame(all_activations)
+    submission.insert(0, 'class', ids)
+    submission.reset_index()
+    submission.to_csv(config.activations_path, index=False)
