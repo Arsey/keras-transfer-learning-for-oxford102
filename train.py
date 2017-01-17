@@ -11,19 +11,18 @@ np.random.seed(1337)  # for reproducibility
 def register_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-t', '--train_dir', help='Path to data train directory')
-    parser.add_argument('-v', '--valid_dir', help='Path to data validation directory')
+    parser.add_argument('--data_dir', help='Path to data dir')
 
     return parser.parse_args()
 
 
 args = register_args()
-train_dir = args.train_dir
-valid_dir = args.valid_dir
+data_dir = args.data_dir
 
-if valid_dir or train_dir:
-    config.train_dir = train_dir
-    config.validation_dir = valid_dir
+if data_dir:
+    config.data_dir = data_dir
+
+config.set_paths()
 
 util.override_keras_directory_iterator_next()
 config.classes = util.get_classes_from_train_dir()
@@ -37,3 +36,5 @@ config.nb_validation_samples = samples_info[config.validation_dir]
 bottlenecks.save_bottleneck_features()
 bottlenecks.train_top_model()
 fine_tuning.tune()
+
+print('Train is finished!')

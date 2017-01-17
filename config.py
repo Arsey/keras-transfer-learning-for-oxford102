@@ -1,12 +1,29 @@
-data_dir = 'data/sorted'
+from os.path import join as join_path
+import os
 
-train_dir = '{}/train/'.format(data_dir)
-validation_dir = '{}/valid/'.format(data_dir)
+abspath = os.path.dirname(os.path.abspath(__file__))
 
-bf_train_path = 'trained/bottleneck_features_train.npy'
-bf_valid_path = 'trained/bottleneck_features_validation.npy'
-top_model_weights_path = 'trained/top-model-weights.h5'
-fine_tuned_weights_path = 'trained/fine-tuned-vgg16-weights.h5'
+data_dir = join_path(abspath, 'data/sorted')
+trained_dir = join_path(abspath, 'trained')
+
+train_dir, validation_dir = None, None
+
+
+def set_paths():
+    global train_dir, validation_dir
+    train_dir = join_path(data_dir, 'train/')
+    validation_dir = join_path(data_dir, 'valid/')
+
+
+set_paths()
+
+bf_train_path = join_path(trained_dir, 'bottleneck_features_train.npy')
+bf_valid_path = join_path(trained_dir, 'bottleneck_features_validation.npy')
+top_model_weights_path = join_path(trained_dir, 'top-model-weights.h5')
+fine_tuned_weights_path = join_path(trained_dir, 'fine-tuned-vgg16-weights.h5')
+
+#activations_path = join_path(trained_dir, 'activations.csv')
+#relativity_model_path = join_path(trained_dir, 'relativity-model')
 
 plots_dir = 'plots'
 

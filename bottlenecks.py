@@ -46,7 +46,7 @@ def train_top_model():
 
     model = util.get_top_model_for_VGG16(shape=train_data.shape[1:], nb_class=len(config.classes), W_regularizer=True)
     rms = RMSprop(lr=5e-4, rho=0.9, epsilon=1e-08, decay=0.01)
-    model.compile(optimizer=rms, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=rms, loss='sparse_categorical_crossentropy', metrics=['accuracy', 'precision', 'recall', 'fmeasure'])
 
     early_stopping = EarlyStopping(verbose=1, patience=20, monitor='acc')
     model_checkpoint = ModelCheckpoint(config.top_model_weights_path, save_best_only=True, save_weights_only=True, monitor='acc')
