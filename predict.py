@@ -8,8 +8,6 @@ from sklearn.externals import joblib
 import config
 import util
 
-tic = time.clock()
-
 
 def parse_args():
     """
@@ -21,27 +19,10 @@ def parse_args():
     parser.add_argument('--execution_time', action='store_true')
     parser.add_argument('--store_activations', action='store_true')
     parser.add_argument('--check_relativity', action='store_true')
+    parser.add_argument('--model', type=str, default=config.MODEL_VGG16)
     parser.add_argument('--data_dir', help='Path to data train directory')
     args = parser.parse_args()
     return args
-
-
-args = parse_args()
-
-print('Called with args:')
-print(args)
-
-img_path = args.path
-show_accuracy = args.accuracy
-show_time = args.execution_time
-data_dir = args.data_dir
-
-if data_dir:
-    config.data_dir = data_dir
-    config.set_paths()
-
-config.classes = util.get_classes_from_train_dir()
-classes_in_keras_format = util.get_classes_in_keras_format()
 
 
 def get_inputs_and_trues(im_path):
@@ -73,19 +54,16 @@ def get_inputs_and_trues(im_path):
 
 
 def predict(path):
-    model = util.load_model(nb_class=len(config.classes))
-    model.load_weights(config.fine_tuned_weights_path)
-
     y_true, inputs, files = get_inputs_and_trues(path)
 
-    if args.store_activations:
-        util.save_activations(model, inputs, files)
-    if args.check_relativity:
-        af = util.get_activation_function(model, 'fc2')
-        acts = util.get_activations(af, [inputs[0]])
-        relativity_clf = joblib.load(config.relativity_model_path)
-        predicted_relativity = relativity_clf.predict(acts)[0]
-        print(relativity_clf.__classes[predicted_relativity])
+    # if args.store_activations:
+    #     util.save_activations(model, inputs, files, 'fc2')
+    # if args.check_relativity:
+    #     af = util.get_activation_function(model, 'fc2')
+    #     acts = util.get_activations(af, [inputs[0]])
+    #     relativity_clf = joblib.load(config.relativity_model_path)
+    #     predicted_relativity = relativity_clf.predict(acts)[0]
+    #     print(relativity_clf.__classes[predicted_relativity])
 
     out = model.predict(np.array(inputs))
     predictions = np.argmax(out, axis=1)
@@ -94,12 +72,31 @@ def predict(path):
         recognized_class = classes_in_keras_format.keys()[classes_in_keras_format.values().index(p)]
         print '{} ({}) ---> {} ({})'.format(y_true[i], files[i].split(os.sep)[-2], p, recognized_class)
 
-    if show_accuracy:
+    if args.accuracy:
         print 'accuracy {}'.format(accuracy_score(y_true=y_true, y_pred=predictions))
 
 
-predict(img_path)
+if __name__ == '__main__':
+    tic = time.clock()
 
-if show_time:
-    toc = time.clock()
-    print 'Time: %s' % (toc - tic)
+    args = parse_args()
+    print('Called with args:')
+    print(args)
+
+    if args.data_dir:
+        config.data_dir = args.data_dir
+        config.set_paths()
+    if args.model:
+        config.model = args.model
+
+    model_module = util.get_model_module()
+    model = model_module.load_trained()
+
+    config.classes = util.get_classes_from_train_dir()
+    classes_in_keras_format = util.get_classes_in_keras_format()
+
+    predict(args.path)
+
+    if args.execution_time:
+        toc = time.clock()
+        print 'Time: %s' % (toc - tic)
