@@ -24,14 +24,22 @@ python bootstrap.py
 
 ### Step 2: Train
 ```
-python train.py
+python train.py --model=vgg16
+```
+or
+```
+python train.py --model=inception_v3
 ```
 
 ### Step 3: Get predictions using `predict.py` or `server.py` + `client.py` 
 
 Using `predict.py`:
 ```
-python predict.py -p "/path/to/image"
+python predict.py -p "/path/to/image" --model=vgg16
+```
+or
+```
+python predict.py -p "/path/to/image" --model=inception_v3
 ```
 
 Using `server.py` + `client.py`:
