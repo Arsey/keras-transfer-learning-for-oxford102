@@ -47,6 +47,18 @@ def save_history(history, prefix):
     plt.close()
 
 
+def get_dir_imgs_number(dir_path):
+    allowed_extensions = ['*.png', '*.jpg', '*.jpeg', '*.bmp']
+    number = 0
+    for e in allowed_extensions:
+        # print os.path.join(dir_path, e)
+        # print len(glob.glob(os.path.join(dir_path, e)))
+        number += len(glob.glob(os.path.join(dir_path, e)))
+    # print 'total',number
+    # exit()
+    return number
+
+
 def get_samples_info():
     """Walks through the train and valid directories
     and returns number of images"""
@@ -72,7 +84,7 @@ def get_layer_weights(weights_file=None, layer_name=None):
         return weights
 
 
-def get_top_model_for_VGG16(nb_class=None, shape=None, W_regularizer=None, weights_file_path=None, input=None, output=None):
+def get_top_model_for_VGG16(nb_class=None, shape=None, W_regularizer=None, weights_file_path=False, input=None, output=None):
     if not output:
         inputs = Input(shape=shape)
         x = Flatten(name='flatten')(inputs)
@@ -82,7 +94,7 @@ def get_top_model_for_VGG16(nb_class=None, shape=None, W_regularizer=None, weigh
     #############################
     weights_file = None
     if weights_file_path:
-        weights_file = h5.File(config.top_model_weights_path)
+        weights_file = h5.File(config.get_top_model_weights_path())
 
     #############################
     if W_regularizer:

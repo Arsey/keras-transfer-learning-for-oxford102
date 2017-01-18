@@ -40,16 +40,20 @@ def train_top_model():
     validation_labels = []
     k = 0
     for i in config.classes:
-        train_labels += [k] * len(os.listdir('{}/{}'.format(config.train_dir, i)))
-        validation_labels += [k] * len(os.listdir('{}/{}'.format(config.validation_dir, i)))
+        train_labels += [k] * util.get_dir_imgs_number(os.path.join(config.train_dir, i))
+        validation_labels += [k] * util.get_dir_imgs_number(os.path.join(config.validation_dir, i))
         k += 1
 
     model = util.get_top_model_for_VGG16(shape=train_data.shape[1:], nb_class=len(config.classes), W_regularizer=True)
     rms = RMSprop(lr=5e-4, rho=0.9, epsilon=1e-08, decay=0.01)
     model.compile(optimizer=rms, loss='sparse_categorical_crossentropy', metrics=['accuracy', 'precision', 'recall', 'fmeasure'])
 
-    early_stopping = EarlyStopping(verbose=1, patience=20, monitor='acc')
-    model_checkpoint = ModelCheckpoint(config.top_model_weights_path, save_best_only=True, save_weights_only=True, monitor='acc')
+    early_stopping = EarlyStopping(verbose=1, patience=20, monitor='val_acc')
+    model_checkpoint = ModelCheckpoint(
+        config.get_top_model_weights_path(),
+        save_best_only=True,
+        save_weights_only=True,
+        monitor='val_acc')
     callbacks_list = [early_stopping, model_checkpoint]
 
     history = model.fit(

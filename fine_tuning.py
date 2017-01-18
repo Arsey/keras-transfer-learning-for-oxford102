@@ -7,7 +7,7 @@ import config
 
 
 def tune(lr=0.0001):
-    model = util.load_model(nb_class=len(config.classes), weights_path=config.top_model_weights_path)
+    model = util.load_model(nb_class=len(config.classes), weights_path=config.get_top_model_weights_path())
 
     model.compile(
         loss='categorical_crossentropy',
@@ -35,8 +35,8 @@ def tune(lr=0.0001):
         target_size=config.img_size,
         classes=config.classes)
 
-    early_stopping = EarlyStopping(verbose=1, patience=30, monitor='acc')
-    model_checkpoint = ModelCheckpoint(config.fine_tuned_weights_path, save_best_only=True, save_weights_only=True, monitor='acc')
+    early_stopping = EarlyStopping(verbose=1, patience=30, monitor='val_acc')
+    model_checkpoint = ModelCheckpoint(config.get_fine_tuned_weights_path(), save_best_only=True, save_weights_only=True, monitor='val_acc')
     callbacks_list = [early_stopping, model_checkpoint]
 
     history = model.fit_generator(
