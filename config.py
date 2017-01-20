@@ -3,6 +3,8 @@ import os
 
 abspath = os.path.dirname(os.path.abspath(__file__))
 
+lock_file = os.path.join(abspath, 'lock')
+
 data_dir = join_path(abspath, 'data/sorted')
 trained_dir = join_path(abspath, 'trained')
 
@@ -17,6 +19,8 @@ bf_train_path = join_path(trained_dir, 'bottleneck_features_train.npy')
 bf_valid_path = join_path(trained_dir, 'bottleneck_features_validation.npy')
 top_model_weights_path = join_path(trained_dir, 'top-model-{}-weights.h5')
 fine_tuned_weights_path = join_path(trained_dir, 'fine-tuned-{}-weights.h5')
+model_path = join_path(trained_dir, 'model-{}.h5')
+classes_path = join_path(trained_dir, 'classes-{}')
 
 activations_path = join_path(trained_dir, 'activations.csv')
 relativity_model_path = join_path(trained_dir, 'relativity-model-{}')
@@ -54,3 +58,11 @@ def get_fine_tuned_weights_path():
 
 def get_relativity_model_path():
     return relativity_model_path.format(model)
+
+
+def get_model_path():
+    return model_path.format(model)
+
+
+def get_classes_path():
+    return classes_path.format(model)

@@ -10,3 +10,5 @@ gitpush.sh
 *.ipynb_checkpoints
 .idea
 trained
+*.log
+lock

@@ -8,12 +8,12 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.models import Model
 from keras.regularizers import l2
 from keras.layers import Flatten, Dense, Dropout, Input
-
+from keras.models import load_model as keras_load_model
 import util
 import config
 
-top_model_nb_epoch = 1
-fine_tuning_nb_epoch = 1
+top_model_nb_epoch = 100
+fine_tuning_nb_epoch = 300
 
 RELATIVITY_LAYER = 'fc2'
 
@@ -127,14 +127,14 @@ def train_top_model():
 
     model = get_top_model_for_VGG16(shape=train_data.shape[1:], nb_class=len(config.classes), W_regularizer=True)
     rms = RMSprop(lr=5e-4, rho=0.9, epsilon=1e-08, decay=0.01)
-    model.compile(optimizer=rms, loss='sparse_categorical_crossentropy', metrics=['accuracy', 'precision', 'recall', 'fmeasure'])
+    model.compile(optimizer=rms, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
-    early_stopping = EarlyStopping(verbose=1, patience=20, monitor='val_acc')
+    early_stopping = EarlyStopping(verbose=1, patience=20, monitor='val_loss')
     model_checkpoint = ModelCheckpoint(
         config.get_top_model_weights_path(),
         save_best_only=True,
         save_weights_only=True,
-        monitor='val_acc')
+        monitor='val_loss')
     callbacks_list = [early_stopping, model_checkpoint]
 
     history = model.fit(
@@ -176,8 +176,8 @@ def tune(lr=0.0001):
         target_size=config.img_size,
         classes=config.classes)
 
-    early_stopping = EarlyStopping(verbose=1, patience=30, monitor='val_acc')
-    model_checkpoint = ModelCheckpoint(config.get_fine_tuned_weights_path(), save_best_only=True, save_weights_only=True, monitor='val_acc')
+    early_stopping = EarlyStopping(verbose=1, patience=30, monitor='val_loss')
+    model_checkpoint = ModelCheckpoint(config.get_fine_tuned_weights_path(), save_best_only=True, save_weights_only=True, monitor='val_loss')
     callbacks_list = [early_stopping, model_checkpoint]
 
     history = model.fit_generator(
@@ -190,6 +190,9 @@ def tune(lr=0.0001):
 
     util.save_history(history=history, prefix='fine-tuning')
 
+    model.save(config.get_model_path())
+    util.save_classes(config.classes)
+
 
 def train():
     save_bottleneck_features()
@@ -198,6 +201,6 @@ def train():
 
 
 def load_trained():
-    model = load_model(nb_class=len(config.classes))
-    model.load_weights(config.get_fine_tuned_weights_path())
+    model = keras_load_model(config.get_model_path())
+    util.load_classes()
     return model

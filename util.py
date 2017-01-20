@@ -8,11 +8,10 @@ import os
 import glob
 import pandas as pd
 import importlib
-
 from keras.preprocessing import image
 from keras.applications.imagenet_utils import preprocess_input
 from keras import backend as K
-
+from sklearn.externals import joblib
 import config
 
 
@@ -20,7 +19,10 @@ def save_history(history, prefix):
     if 'acc' not in history.history:
         return
 
-    img_path = '{}/{}-%s.jpg'.format(config.plots_dir, prefix)
+    if not os.path.exists(config.plots_dir):
+        os.mkdir(config.plots_dir)
+
+    img_path = os.path.join(config.plots_dir, '{}-%s.jpg'.format(prefix))
 
     # summarize history for accuracy
     plt.plot(history.history['acc'])
@@ -129,7 +131,7 @@ def get_activations(activation_function, X_batch):
     return activations[0][0]
 
 
-def save_activations(model, inputs, files,layer):
+def save_activations(model, inputs, files, layer):
     all_activations = []
     ids = []
     af = get_activation_function(model, layer)
@@ -142,3 +144,24 @@ def save_activations(model, inputs, files,layer):
     submission.insert(0, 'class', ids)
     submission.reset_index()
     submission.to_csv(config.activations_path, index=False)
+
+
+def save_classes(classes):
+    joblib.dump(classes, config.get_classes_path())
+
+
+def load_classes():
+    config.classes = joblib.load(config.get_classes_path())
+
+
+def lock():
+    if os.path.exists(config.lock_file):
+        exit('Previous process is not yet finished.')
+    lock_file = open(config.lock_file, 'w')
+    lock_file.write(str(os.getpid()))
+    lock_file.close()
+
+
+def unlock():
+    if os.path.exists(config.lock_file):
+        os.remove(config.lock_file)
