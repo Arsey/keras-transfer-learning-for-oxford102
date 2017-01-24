@@ -1,6 +1,7 @@
 import time
 import argparse
 import os
+os.environ["THEANO_FLAGS"] = "lib.cnmem=1000"
 import numpy as np
 import glob
 from sklearn.metrics import accuracy_score
@@ -95,9 +96,6 @@ if __name__ == '__main__':
 
     model_module = util.get_model_module()
     model = model_module.load_trained()
-
-    config.classes = util.get_classes_from_train_dir()
-    classes_in_keras_format = util.get_classes_in_keras_format()
 
     predict(args.path)
 
