@@ -18,12 +18,13 @@ model_module = util.get_model_module()
 model = model_module.load_trained()
 print 'Model loaded'
 
-# try:
-    # print 'Loading activation function...'
-    # af = util.get_activation_function(model, model_module.RELATIVITY_LAYER)
-    # relativity_clf = joblib.load(config.get_relativity_model_path())
-# except Exception as e:
-#     print e
+try:
+    print 'Loading activation function'
+    af = util.get_activation_function(model, model_module.RELATIVITY_LAYER)
+    print 'Loading relativity classifier'
+    relativity_clf = joblib.load(config.get_relativity_model_path())
+except Exception as e:
+    print e
 
 FILE_DOES_NOT_EXIST = '-1'
 UNKNOWN_ERROR = '-2'
@@ -48,14 +49,15 @@ def handle(clientsocket):
 
                 answer = keys[values.index(prediction)]
 
-                if 'relativity_clf' in locals():
+                try:
                     acts = util.get_activations(af, img)
                     predicted_relativity = relativity_clf.predict(acts)[0]
                     relativity_class = relativity_clf.__classes[predicted_relativity]
-                else:
-                    relativity_class = 'plant'
+                except Exception as e:
+                    print e.message
+                    relativity_class = 'related'
 
-                response = '{"probability":"%s","class":"%s","relativity_class":"%s"}' % (out[0][prediction], answer, relativity_class)
+                response = '{"probability":"%s","class":"%s","relativity":"%s"}' % (out[0][prediction], answer, relativity_class)
                 print response
                 clientsocket.sendall(response)
             except Exception as e:

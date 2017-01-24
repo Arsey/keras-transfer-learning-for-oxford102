@@ -56,24 +56,28 @@ def get_inputs_and_trues(im_path):
 def predict(path):
     y_true, inputs, files = get_inputs_and_trues(path)
 
-    # if args.store_activations:
-    #     util.save_activations(model, inputs, files, 'fc2')
-    # if args.check_relativity:
-    #     af = util.get_activation_function(model, 'fc2')
-    #     acts = util.get_activations(af, [inputs[0]])
-    #     relativity_clf = joblib.load(config.relativity_model_path)
-    #     predicted_relativity = relativity_clf.predict(acts)[0]
-    #     print(relativity_clf.__classes[predicted_relativity])
+    if config.model == config.MODEL_VGG16:
+        if args.store_activations:
+            import train_relativity
+            util.save_activations(model, inputs, files, 'fc2')
+            train_relativity.train_relativity()
+        if args.check_relativity:
+            af = util.get_activation_function(model, 'fc2')
+            acts = util.get_activations(af, [inputs[0]])
+            relativity_clf = joblib.load(config.relativity_model_path)
+            predicted_relativity = relativity_clf.predict(acts)[0]
+            print(relativity_clf.__classes[predicted_relativity])
 
-    out = model.predict(np.array(inputs))
-    predictions = np.argmax(out, axis=1)
+    if not args.store_activations:
+        out = model.predict(np.array(inputs))
+        predictions = np.argmax(out, axis=1)
 
-    for i, p in enumerate(predictions):
-        recognized_class = classes_in_keras_format.keys()[classes_in_keras_format.values().index(p)]
-        print '{} ({}) ---> {} ({})'.format(y_true[i], files[i].split(os.sep)[-2], p, recognized_class)
+        for i, p in enumerate(predictions):
+            recognized_class = classes_in_keras_format.keys()[classes_in_keras_format.values().index(p)]
+            print '{} ({}) ---> {} ({})'.format(y_true[i], files[i].split(os.sep)[-2], p, recognized_class)
 
-    if args.accuracy:
-        print 'accuracy {}'.format(accuracy_score(y_true=y_true, y_pred=predictions))
+        if args.accuracy:
+            print 'accuracy {}'.format(accuracy_score(y_true=y_true, y_pred=predictions))
 
 
 if __name__ == '__main__':
