@@ -201,6 +201,7 @@ def train():
 
 
 def load_trained():
-    model = keras_load_model(config.get_model_path())
     util.load_classes()
+    model = load_model(nb_class=len(config.classes))
+    model.load_weights(config.get_fine_tuned_weights_path())
     return model
