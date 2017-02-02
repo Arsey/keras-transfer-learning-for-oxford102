@@ -177,7 +177,8 @@ def tune(lr=0.0001):
         classes=config.classes)
 
     early_stopping = EarlyStopping(verbose=1, patience=30, monitor='val_loss')
-    model_checkpoint = ModelCheckpoint(config.get_fine_tuned_weights_path(), save_best_only=True, save_weights_only=True, monitor='val_loss')
+    model_checkpoint = ModelCheckpoint(config.get_fine_tuned_weights_path(), save_best_only=True, save_weights_only=True,
+                                       monitor='val_loss')
     callbacks_list = [early_stopping, model_checkpoint]
 
     history = model.fit_generator(
@@ -205,3 +206,7 @@ def load_trained():
     model = load_model(nb_class=len(config.classes))
     model.load_weights(config.get_fine_tuned_weights_path())
     return model
+
+
+def load_img(img_path):
+    return util.load_img(img_path)

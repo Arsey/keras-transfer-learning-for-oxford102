@@ -1,7 +1,6 @@
 from keras.applications.inception_v3 import InceptionV3
 from keras.layers import GlobalAveragePooling2D, Dense
 from keras.models import Model, load_model
-from keras.optimizers import RMSprop
 from keras.preprocessing.image import ImageDataGenerator
 from keras.optimizers import SGD
 from keras.callbacks import ModelCheckpoint, EarlyStopping
@@ -12,6 +11,7 @@ import numpy as np
 import config
 import util
 from keras.utils import np_utils
+from keras.preprocessing import image
 
 # source example is here - https://keras.io/applications/#fine-tune-inceptionv3-on-a-new-set-of-classes
 
@@ -58,7 +58,7 @@ def dataset(base_dir, n):
         filenames = d[class_name]
         for filename in filenames:
             processed_image_count += 1
-            img = scipy.misc.imread(filename)
+            img = scipy.misc.imread(filename, mode='RGB')
             height, width, chan = img.shape
             assert chan == 3
             aspect_ratio = float(max((height, width))) / min((height, width))
@@ -156,11 +156,12 @@ def train_top_layers(model, X_train, Y_train, X_test, Y_test, datagen):
     #                                    fill_mode='nearest')
     # train_gen, val_gen = _get_data_generators(train_datagen)
     callbacks = _get_callbacks(config.get_top_model_weights_path())
+    test_datagen = ImageDataGenerator()
     model.fit_generator(
         datagen.flow(X_train, Y_train, shuffle=True),
         samples_per_epoch=X_train.shape[0],
         nb_epoch=train_top_layers_nb_epoch,
-        validation_data=datagen.flow(X_test, Y_test),
+        validation_data=test_datagen.flow(X_test, Y_test),
         nb_val_samples=X_test.shape[0],
         callbacks=callbacks)
     return model
@@ -196,6 +197,7 @@ def fine_tune_top_2_inception_blocks(model, X_train, Y_train, X_test, Y_test, da
     # )
     # train_gen, val_gen = _get_data_generators(train_datagen)
     callbacks = _get_callbacks(config.get_fine_tuned_weights_path(), patience=30)
+    test_datagen = ImageDataGenerator()
 
     # we train our model again (this time fine-tuning the top 2 inception blocks
     # alongside the top Dense layers
@@ -203,7 +205,7 @@ def fine_tune_top_2_inception_blocks(model, X_train, Y_train, X_test, Y_test, da
         datagen.flow(X_train, Y_train, shuffle=True),
         samples_per_epoch=X_train.shape[0],
         nb_epoch=fine_tune_nb_epoch,
-        validation_data=datagen.flow(X_test, Y_test),
+        validation_data=test_datagen.flow(X_test, Y_test),
         nb_val_samples=X_test.shape[0],
         callbacks=callbacks)
 
@@ -249,3 +251,17 @@ def load_trained():
     model = load_model(config.get_model_path())
     util.load_classes()
     return model
+
+
+def load_img(img_path):
+    n = 224
+    img = scipy.misc.imread(img_path, mode='RGB')
+    height, width, chan = img.shape
+    centery = height // 2
+    centerx = width // 2
+    radius = min((centerx, centery))
+    img = img[centery - radius:centery + radius, centerx - radius:centerx + radius]
+    img = scipy.misc.imresize(img, size=(n, n), interp='bilinear')
+    x = preprocess_input(img)
+    x = x.transpose((2, 0, 1))
+    return x

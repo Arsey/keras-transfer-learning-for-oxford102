@@ -1,6 +1,7 @@
 import time
 import argparse
 import os
+
 os.environ["THEANO_FLAGS"] = "lib.cnmem=1000"
 import numpy as np
 import glob
@@ -38,7 +39,7 @@ def get_inputs_and_trues(im_path):
     y_true = []
 
     for i in files:
-        x = util.load_img(i)
+        x = model_module.load_img(i)
         try:
             image_class = i.split(os.sep)[-2]
             keras_class = int(classes_in_keras_format[image_class])
@@ -95,7 +96,11 @@ if __name__ == '__main__':
         config.model = args.model
 
     model_module = util.get_model_module()
+    # print(model_module.load_img(args.path))
+    # exit()
     model = model_module.load_trained()
+
+    classes_in_keras_format = util.get_classes_in_keras_format()
 
     predict(args.path)
 

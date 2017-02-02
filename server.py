@@ -38,7 +38,7 @@ def handle(clientsocket):
 
         if os.path.isfile(buf):
             try:
-                img = [util.load_img(buf)]
+                img = [model_module.load_img(buf)]
 
                 out = model.predict(np.array(img))
                 prediction = np.argmax(out)
