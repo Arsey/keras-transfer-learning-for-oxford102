@@ -8,7 +8,6 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.models import Model
 from keras.regularizers import l2
 from keras.layers import Flatten, Dense, Dropout, Input
-from keras.models import load_model as keras_load_model
 import util
 import config
 
@@ -147,6 +146,20 @@ def train_top_model():
     util.save_history(history=history, prefix='bottleneck')
 
 
+def _cleanup():
+    # remove unnecessary weights files
+    files_to_remove = [
+        config.bf_train_path,
+        config.bf_valid_path,
+        config.get_top_model_weights_path()
+    ]
+    for f in files_to_remove:
+        os.remove(f)
+
+    # move final model weights for further using
+    os.rename(config.get_fine_tuned_weights_path(checkpoint=True), config.get_fine_tuned_weights_path())
+
+
 def tune(lr=0.0001):
     model = load_model(nb_class=len(config.classes), weights_path=config.get_top_model_weights_path())
 
@@ -177,22 +190,22 @@ def tune(lr=0.0001):
         classes=config.classes)
 
     early_stopping = EarlyStopping(verbose=1, patience=30, monitor='val_loss')
-    model_checkpoint = ModelCheckpoint(config.get_fine_tuned_weights_path(), save_best_only=True, save_weights_only=True,
+    model_checkpoint = ModelCheckpoint(config.get_fine_tuned_weights_path(checkpoint=True),
+                                       save_best_only=True,
+                                       save_weights_only=True,
                                        monitor='val_loss')
-    callbacks_list = [early_stopping, model_checkpoint]
-
     history = model.fit_generator(
         train_generator,
         samples_per_epoch=config.nb_train_samples,
         nb_epoch=fine_tuning_nb_epoch,
         validation_data=validation_generator,
         nb_val_samples=config.nb_validation_samples,
-        callbacks=callbacks_list)
+        callbacks=[early_stopping, model_checkpoint])
 
     util.save_history(history=history, prefix='fine-tuning')
-
-    model.save(config.get_model_path())
     util.save_classes(config.classes)
+
+    _cleanup()
 
 
 def train():

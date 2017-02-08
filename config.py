@@ -25,7 +25,7 @@ classes_path = join_path(trained_dir, 'classes-{}')
 activations_path = join_path(trained_dir, 'activations.csv')
 relativity_model_path = join_path(trained_dir, 'relativity-model-{}')
 
-plots_dir = 'plots'
+plots_dir = join_path(abspath, 'plots')
 
 img_size = (224, 224)
 
@@ -52,8 +52,8 @@ def get_top_model_weights_path():
     return top_model_weights_path.format(model)
 
 
-def get_fine_tuned_weights_path():
-    return fine_tuned_weights_path.format(model)
+def get_fine_tuned_weights_path(checkpoint=False):
+    return fine_tuned_weights_path.format(model + '-checkpoint' if checkpoint else model)
 
 
 def get_relativity_model_path():
