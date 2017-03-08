@@ -26,21 +26,17 @@ if __name__ == '__main__':
             config.model = args.model
 
         util.lock()
-
         util.override_keras_directory_iterator_next()
-        config.classes = util.get_classes_from_train_dir()
-
-        # set samples info
-        samples_info = util.get_samples_info()
-        config.nb_train_samples = samples_info[config.train_dir]
-        config.nb_validation_samples = samples_info[config.validation_dir]
+        util.set_classes_from_train_dir()
+        util.set_samples_info()
+        class_weight = util.get_class_weight(config.train_dir)
 
         if not os.path.exists(config.trained_dir):
             os.mkdir(config.trained_dir)
 
         # train
         model_module = util.get_model_module()
-        model_module.train()
+        model_module.train(class_weight=class_weight)
         print('Training is finished!')
     except (KeyboardInterrupt, SystemExit):
         util.unlock()

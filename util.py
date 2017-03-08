@@ -13,6 +13,7 @@ from keras.applications.imagenet_utils import preprocess_input
 from keras import backend as K
 from sklearn.externals import joblib
 import config
+import math
 
 
 def save_history(history, prefix):
@@ -57,7 +58,7 @@ def get_dir_imgs_number(dir_path):
     return number
 
 
-def get_samples_info():
+def set_samples_info():
     """Walks through the train and valid directories
     and returns number of images"""
     white_list_formats = {'png', 'jpg', 'jpeg', 'bmp'}
@@ -69,7 +70,35 @@ def get_samples_info():
             if file_extension[1:] in white_list_formats:
                 dirs_info[d] += 1
 
-    return dirs_info
+    config.nb_train_samples = dirs_info[config.train_dir]
+    config.nb_validation_samples = dirs_info[config.validation_dir]
+
+
+def get_class_weight(d):
+    white_list_formats = {'png', 'jpg', 'jpeg', 'bmp'}
+    class_number = dict()
+    dirs = sorted([o for o in os.listdir(d) if os.path.isdir(os.path.join(d, o))])
+    k = 0
+    for class_name in dirs:
+        class_number[k] = 0
+        iglob_iter = glob.iglob(os.path.join(d, class_name, '*.*'))
+        for i in iglob_iter:
+            _, ext = os.path.splitext(i)
+            if ext[1:] in white_list_formats:
+                class_number[k] += 1
+        k += 1
+
+
+    total = np.sum(class_number.values())
+    max_samples = np.max(class_number.values())
+    mu = 1. / (total / float(max_samples))
+    keys = class_number.keys()
+    class_weight = dict()
+    for key in keys:
+        score = math.log(mu * total / float(class_number[key]))
+        class_weight[key] = score if score > 1. else 1.
+
+    return class_weight
 
 
 def load_img(path):
@@ -79,10 +108,10 @@ def load_img(path):
     return preprocess_input(x)[0]
 
 
-def get_classes_from_train_dir():
+def set_classes_from_train_dir():
     """Returns classes based on directories in train directory"""
     d = config.train_dir
-    return sorted([o for o in os.listdir(d) if os.path.isdir(os.path.join(d, o))])
+    config.classes = sorted([o for o in os.listdir(d) if os.path.isdir(os.path.join(d, o))])
 
 
 def override_keras_directory_iterator_next():

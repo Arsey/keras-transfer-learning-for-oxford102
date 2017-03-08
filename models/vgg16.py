@@ -11,7 +11,7 @@ from keras.layers import Flatten, Dense, Dropout, Input
 import util
 import config
 
-top_model_nb_epoch = 100
+top_model_nb_epoch = 300
 fine_tuning_nb_epoch = 300
 
 RELATIVITY_LAYER = 'fc2'
@@ -27,7 +27,8 @@ def get_layer_weights(weights_file=None, layer_name=None):
         return weights
 
 
-def get_top_model_for_VGG16(nb_class=None, shape=None, W_regularizer=None, weights_file_path=False, input=None, output=None):
+def get_top_model_for_VGG16(nb_class=None, shape=None, W_regularizer=None, weights_file_path=False, input=None,
+                            output=None):
     if not output:
         inputs = Input(shape=shape)
         x = Flatten(name='flatten')(inputs)
@@ -112,7 +113,7 @@ def save_bottleneck_features():
     np.save(open(config.bf_valid_path, 'w'), bottleneck_features_validation)
 
 
-def train_top_model():
+def train_top_model(class_weight=None):
     train_data = np.load(open(config.bf_train_path, 'rb'))
     validation_data = np.load(open(config.bf_valid_path, 'rb'))
 
@@ -141,7 +142,8 @@ def train_top_model():
         train_labels,
         nb_epoch=top_model_nb_epoch,
         validation_data=(validation_data, validation_labels),
-        callbacks=callbacks_list)
+        callbacks=callbacks_list,
+        class_weight=class_weight)
 
     util.save_history(history=history, prefix='bottleneck')
 
@@ -160,7 +162,7 @@ def _cleanup():
     os.rename(config.get_fine_tuned_weights_path(checkpoint=True), config.get_fine_tuned_weights_path())
 
 
-def tune(lr=0.0001):
+def tune(lr=0.0001, class_weight=None):
     model = load_model(nb_class=len(config.classes), weights_path=config.get_top_model_weights_path())
 
     model.compile(
@@ -200,7 +202,8 @@ def tune(lr=0.0001):
         nb_epoch=fine_tuning_nb_epoch,
         validation_data=validation_generator,
         nb_val_samples=config.nb_validation_samples,
-        callbacks=[early_stopping, model_checkpoint])
+        callbacks=[early_stopping, model_checkpoint],
+        class_weight=class_weight)
 
     util.save_history(history=history, prefix='fine-tuning')
     util.save_classes(config.classes)
@@ -208,10 +211,10 @@ def tune(lr=0.0001):
     _cleanup()
 
 
-def train():
+def train(class_weight=None):
     save_bottleneck_features()
-    train_top_model()
-    tune()
+    train_top_model(class_weight=class_weight)
+    tune(class_weight=class_weight)
 
 
 def load_trained():
