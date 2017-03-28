@@ -11,7 +11,7 @@ from keras.layers import Flatten, Dense, Dropout, Input
 import util
 import config
 
-top_model_nb_epoch = 300
+top_model_nb_epoch = 1000
 fine_tuning_nb_epoch = 300
 
 RELATIVITY_LAYER = 'fc2'
