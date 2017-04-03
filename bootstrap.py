@@ -9,44 +9,49 @@ from shutil import copyfile, rmtree
 
 import config
 
+data_path = 'data'
+
 
 def download_file(url, dest=None):
     if not dest:
-        dest = 'data/' + url.split('/')[-1]
+        dest = os.path.join(data_path, url.split('/')[-1])
     urllib.urlretrieve(url, dest)
 
 
 # Download the Oxford102 dataset into the current directory
-if not os.path.exists('data'):
-    os.mkdir('data')
+if not os.path.exists(data_path):
+    os.mkdir(data_path)
 
-if not os.path.isfile('data/102flowers.tgz'):
+flowers_archive_path = os.path.join(data_path, '102flowers.tgz')
+if not os.path.isfile(flowers_archive_path):
     print ('Downloading images...')
     download_file('http://www.robots.ox.ac.uk/~vgg/data/flowers/102/102flowers.tgz')
-tarfile.open('data/102flowers.tgz').extractall(path='data/')
+tarfile.open(flowers_archive_path).extractall(path=data_path)
 
-if not os.path.isfile('data/imagelabels.mat'):
+image_labels_path = os.path.join(data_path, 'imagelabels.mat')
+if not os.path.isfile(image_labels_path):
     print("Downloading image labels...")
     download_file('http://www.robots.ox.ac.uk/~vgg/data/flowers/102/imagelabels.mat')
 
-if not os.path.isfile('data/setid.mat'):
+setid_path = os.path.join(data_path, 'setid.mat')
+if not os.path.isfile(setid_path):
     print("Downloading train/test/valid splits...")
     download_file('http://www.robots.ox.ac.uk/~vgg/data/flowers/102/setid.mat')
 
 # Read .mat file containing training, testing, and validation sets.
-setid = loadmat('data/setid.mat')
+setid = loadmat(setid_path)
 
 idx_train = setid['trnid'][0] - 1
 idx_test = setid['tstid'][0] - 1
 idx_valid = setid['valid'][0] - 1
 
 # Read .mat file containing image labels.
-image_labels = loadmat('data/imagelabels.mat')['labels'][0]
+image_labels = loadmat(image_labels_path)['labels'][0]
 
 # Subtract one to get 0-based labels
 image_labels -= 1
 
-files = sorted(glob.glob('data/jpg/*.jpg'))
+files = sorted(glob.glob(os.path.join(data_path, 'jpg', '*.jpg')))
 labels = np.array(zip(files, image_labels))
 
 # Get current working directory for making absolute paths to images
@@ -58,16 +63,18 @@ os.mkdir(config.data_dir)
 
 
 def move_files(dir_name, labels):
-    if not os.path.exists('{}/{}'.format(config.data_dir, dir_name)):
-        os.mkdir('{}/{}'.format(config.data_dir, dir_name))
+    cur_dir_path = os.path.join(config.data_dir, dir_name)
+    if not os.path.exists(cur_dir_path):
+        os.mkdir(cur_dir_path)
 
     for i in range(0, 102):
-        os.mkdir('{}/{}/{}'.format(config.data_dir, dir_name, i))
+        class_dir = os.path.join(config.data_dir, dir_name, str(i))
+        os.mkdir(class_dir)
 
     for label in labels:
-        pic_path = str(label[0])
-        copyfile(pic_path,
-                 '{}/{}/{}/{}/{}'.format(cwd, config.data_dir, dir_name, label[1], pic_path.split(os.sep)[-1]))
+        src = str(label[0])
+        dst = os.path.join(cwd, config.data_dir, dir_name, label[1], src.split(os.sep)[-1])
+        copyfile(src, dst)
 
 
 move_files('train', labels[idx_test, :])
