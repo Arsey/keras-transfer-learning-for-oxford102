@@ -7,6 +7,17 @@ import numpy as np
 from scipy.io import loadmat
 from shutil import copyfile, rmtree
 
+import sys
+
+if sys.version_info[0] >= 3:
+    from urllib.request import urlretrieve
+else:
+    # Not Python 3 - today, it is most likely to be Python 2
+    # But note that this might need an update when Python 4
+    # might be around one day
+    from urllib import urlretrieve
+
+
 import config
 
 data_path = 'data'
@@ -15,7 +26,7 @@ data_path = 'data'
 def download_file(url, dest=None):
     if not dest:
         dest = os.path.join(data_path, url.split('/')[-1])
-    urllib.urlretrieve(url, dest)
+    urlretrieve(url, dest)
 
 
 # Download the Oxford102 dataset into the current directory
