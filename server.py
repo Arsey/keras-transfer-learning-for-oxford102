@@ -8,21 +8,20 @@ import util
 from sklearn.externals import joblib
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model', type=str, default=config.MODEL_VGG16, help='Base model architecture')
-
+parser.add_argument('--model', type=str, required=True, help='Base model architecture',
+                    choices=[config.MODEL_RESNET50, config.MODEL_INCEPTION_V3, config.MODEL_VGG16])
 args = parser.parse_args()
-if args.model:
-    config.model = args.model
+config.model = args.model
 
-model_module = util.get_model_module()
-model = model_module.load_trained()
+model_module = util.get_model_class_instance()
+model = model_module.load()
 print 'Model loaded'
 
 try:
     print 'Loading activation function'
-    af = util.get_activation_function(model, model_module.RELATIVITY_LAYER)
+    af = util.get_activation_function(model, model_module.noveltyDetectionLayerName)
     print 'Loading relativity classifier'
-    relativity_clf = joblib.load(config.get_relativity_model_path())
+    novelty_detection_clf = joblib.load(config.get_novelty_detection_model_path())
 except Exception as e:
     print e
 
@@ -42,6 +41,7 @@ def handle(clientsocket):
 
                 out = model.predict(np.array(img))
                 prediction = np.argmax(out)
+                top10 = out[0].argsort()[-10:][::-1]
 
                 class_indices = dict(zip(config.classes, range(len(config.classes))))
                 keys = class_indices.keys()
@@ -51,13 +51,20 @@ def handle(clientsocket):
 
                 try:
                     acts = util.get_activations(af, img)
-                    predicted_relativity = relativity_clf.predict(acts)[0]
-                    relativity_class = relativity_clf.__classes[predicted_relativity]
+                    predicted_relativity = novelty_detection_clf.predict(acts)[0]
+                    nd_class = novelty_detection_clf.__classes[predicted_relativity]
                 except Exception as e:
                     print e.message
-                    relativity_class = 'related'
+                    nd_class = 'related'
 
-                response = '{"probability":"%s","class":"%s","relativity":"%s"}' % (out[0][prediction], answer, relativity_class)
+                top10_json = "["
+                for i, t in enumerate(top10):
+                    top10_json += '{"probability":"%s", "class":"%s"}%s' % (
+                        out[0][t], keys[values.index(t)], '' if i == 9 else ',')
+                top10_json += "]"
+
+                response = '{"probability":"%s","class":"%s","relativity":"%s","top10":%s}' % (
+                    out[0][prediction], answer, nd_class, top10_json)
                 print response
                 clientsocket.sendall(response)
             except Exception as e:
@@ -70,6 +77,8 @@ def handle(clientsocket):
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serversocket.bind(config.server_address)
 serversocket.listen(10)
+
+print('Ready for requests')
 
 while 1:
     # accept connections from outside

@@ -1,19 +1,21 @@
 import matplotlib
 
 matplotlib.use('Agg')  # fixes issue if no GUI provided
-
 import matplotlib.pyplot as plt
+
+import seaborn as sns
+
+sns.set(style='white')
+
 import numpy as np
 import os
 import glob
 import pandas as pd
 import importlib
-from keras.preprocessing import image
-from keras.applications.imagenet_utils import preprocess_input
 from keras import backend as K
-from sklearn.externals import joblib
 import config
 import math
+import itertools
 
 
 def save_history(history, prefix):
@@ -46,15 +48,56 @@ def save_history(history, prefix):
     plt.close()
 
 
+def plot_confusion_matrix(cm, classes,
+                          normalize=False,
+                          title='Confusion matrix',
+                          cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+    confusion_matrix_dir = './confusion_matrix_plots'
+    if not os.path.exists(confusion_matrix_dir):
+        os.mkdir(confusion_matrix_dir)
+
+    plt.cla()
+    plt.figure()
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    print(cm)
+
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, cm[i, j],
+                 horizontalalignment="center",
+                 color="#BFD1D4" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+
+    if normalize:
+        plt.savefig(os.path.join(confusion_matrix_dir, 'normalized.jpg'))
+    else:
+        plt.savefig(os.path.join(confusion_matrix_dir, 'without_normalization.jpg'))
+
+
 def get_dir_imgs_number(dir_path):
     allowed_extensions = ['*.png', '*.jpg', '*.jpeg', '*.bmp']
     number = 0
     for e in allowed_extensions:
-        # print os.path.join(dir_path, e)
-        # print len(glob.glob(os.path.join(dir_path, e)))
         number += len(glob.glob(os.path.join(dir_path, e)))
-    # print 'total',number
-    # exit()
     return number
 
 
@@ -88,7 +131,6 @@ def get_class_weight(d):
                 class_number[k] += 1
         k += 1
 
-
     total = np.sum(class_number.values())
     max_samples = np.max(class_number.values())
     mu = 1. / (total / float(max_samples))
@@ -99,13 +141,6 @@ def get_class_weight(d):
         class_weight[key] = score if score > 1. else 1.
 
     return class_weight
-
-
-def load_img(path):
-    img = image.load_img(path, target_size=config.img_size)
-    x = image.img_to_array(img)
-    x = np.expand_dims(x, axis=0)
-    return preprocess_input(x)[0]
 
 
 def set_classes_from_train_dir():
@@ -134,19 +169,15 @@ def override_keras_directory_iterator_next():
     DirectoryIterator.next = custom_next
 
 
-def apply_mean(image_data_generator):
-    """Subtracts the VGG dataset mean"""
-    image_data_generator.mean = np.array([103.939, 116.779, 123.68], dtype=np.float32).reshape((3, 1, 1))
-
-
 def get_classes_in_keras_format():
     if config.classes:
         return dict(zip(config.classes, range(len(config.classes))))
     return None
 
 
-def get_model_module():
-    return importlib.import_module("models.{}".format(config.model))
+def get_model_class_instance(*args, **kwargs):
+    module = importlib.import_module("models.{}".format(config.model))
+    return module.inst_class(*args, **kwargs)
 
 
 def get_activation_function(m, layer):
@@ -160,7 +191,7 @@ def get_activations(activation_function, X_batch):
     return activations[0][0]
 
 
-def save_activations(model, inputs, files, layer):
+def save_activations(model, inputs, files, layer, batch_number):
     all_activations = []
     ids = []
     af = get_activation_function(model, layer)
@@ -172,15 +203,10 @@ def save_activations(model, inputs, files, layer):
     submission = pd.DataFrame(all_activations)
     submission.insert(0, 'class', ids)
     submission.reset_index()
-    submission.to_csv(config.activations_path, index=False)
-
-
-def save_classes(classes):
-    joblib.dump(classes, config.get_classes_path())
-
-
-def load_classes():
-    config.classes = joblib.load(config.get_classes_path())
+    if batch_number > 0:
+        submission.to_csv(config.activations_path, index=False, mode='a', header=False)
+    else:
+        submission.to_csv(config.activations_path, index=False)
 
 
 def lock():

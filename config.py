@@ -12,8 +12,9 @@ train_dir, validation_dir = None, None
 
 MODEL_VGG16 = 'vgg16'
 MODEL_INCEPTION_V3 = 'inception_v3'
+MODEL_RESNET50 = 'resnet50'
 
-model = MODEL_VGG16
+model = MODEL_RESNET50
 
 bf_train_path = join_path(trained_dir, 'bottleneck_features_train.npy')
 bf_valid_path = join_path(trained_dir, 'bottleneck_features_validation.npy')
@@ -23,11 +24,9 @@ model_path = join_path(trained_dir, 'model-{}.h5')
 classes_path = join_path(trained_dir, 'classes-{}')
 
 activations_path = join_path(trained_dir, 'activations.csv')
-relativity_model_path = join_path(trained_dir, 'relativity-model-{}')
+novelty_detection_model_path = join_path(trained_dir, 'novelty_detection-model-{}')
 
 plots_dir = join_path(abspath, 'plots')
-
-img_size = (224, 224)
 
 # server settings
 server_address = ('0.0.0.0', 4444)
@@ -56,8 +55,8 @@ def get_fine_tuned_weights_path(checkpoint=False):
     return fine_tuned_weights_path.format(model + '-checkpoint' if checkpoint else model)
 
 
-def get_relativity_model_path():
-    return relativity_model_path.format(model)
+def get_novelty_detection_model_path():
+    return novelty_detection_model_path.format(model)
 
 
 def get_model_path():
