@@ -19,7 +19,8 @@ def parse_args():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, required=True, help='Base model architecture',
-                        choices=[config.MODEL_RESNET50, config.MODEL_INCEPTION_V3, config.MODEL_VGG16])
+                        choices=[config.MODEL_RESNET50, config.MODEL_RESNET152, config.MODEL_INCEPTION_V3,
+                                 config.MODEL_VGG16])
     parser.add_argument('--use_nn', action='store_true')
     args = parser.parse_args()
     return args

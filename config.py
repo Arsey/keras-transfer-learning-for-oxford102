@@ -13,6 +13,7 @@ train_dir, validation_dir = None, None
 MODEL_VGG16 = 'vgg16'
 MODEL_INCEPTION_V3 = 'inception_v3'
 MODEL_RESNET50 = 'resnet50'
+MODEL_RESNET152 = 'resnet152'
 
 model = MODEL_RESNET50
 

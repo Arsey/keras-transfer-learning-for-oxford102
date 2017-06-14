@@ -16,7 +16,8 @@ def parse_args():
     parser.add_argument('--data_dir', help='Path to data dir')
     # TODO: check is correct
     parser.add_argument('--model', type=str, required=True, help='Base model architecture',
-                        choices=[config.MODEL_RESNET50, config.MODEL_INCEPTION_V3, config.MODEL_VGG16])
+                        choices=[config.MODEL_RESNET50, config.MODEL_RESNET152, config.MODEL_INCEPTION_V3,
+                                 config.MODEL_VGG16])
     parser.add_argument('--nb_epoch', type=int, default=1000)
     parser.add_argument('--freeze_layers_number', type=int, help='will freeze the first N layers and unfreeze the rest')
     return parser.parse_args()

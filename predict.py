@@ -25,7 +25,7 @@ def parse_args():
     parser.add_argument('--store_activations', action='store_true')
     parser.add_argument('--novelty_detection', action='store_true')
     parser.add_argument('--model', type=str, required=True, help='Base model architecture',
-                        choices=[config.MODEL_RESNET50, config.MODEL_INCEPTION_V3, config.MODEL_VGG16])
+                        choices=[config.MODEL_RESNET50, config.MODEL_RESNET152, config.MODEL_INCEPTION_V3, config.MODEL_VGG16])
     parser.add_argument('--data_dir', help='Path to data train directory')
     parser.add_argument('--batch_size', default=500, type=int, help='How many files to predict on at once')
     args = parser.parse_args()
