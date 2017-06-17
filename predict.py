@@ -5,9 +5,11 @@ import numpy as np
 import glob
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.externals import joblib
+import keras
 
 # will take the video memory as much as needed for the chosen model
 os.environ["THEANO_FLAGS"] = "lib.cnmem=2"
+keras.backend.set_image_dim_ordering('th')
 
 import config
 import util
