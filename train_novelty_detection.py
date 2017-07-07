@@ -11,7 +11,7 @@ import argparse
 import pandas as pd
 import numpy as np
 import config
-
+import util
 
 def parse_args():
     """
@@ -59,8 +59,10 @@ def train_nn():
 
     X_train, X_test, y_train, y_test = train_test_split(df.values, y, test_size=0.2, random_state=17)
 
+    model_module = util.get_model_class_instance()
+
     model = Sequential()
-    model.add(Dense(48, input_dim=1024, activation='elu', init='uniform'))
+    model.add(Dense(48, input_dim=model_module.noveltyDetectionLayerSize, activation='elu', init='uniform'))
     model.add(Dropout(0.5))
     model.add(Dense(32, activation='elu', init='uniform'))
     model.add(Dropout(0.5))
