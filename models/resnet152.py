@@ -1,11 +1,20 @@
-from keras.layers import (Flatten, Dense, Dropout, Input, ZeroPadding2D, Convolution2D, BatchNormalization, Activation,
-                          MaxPooling2D, AveragePooling2D, merge)
+from keras.layers import (Flatten,
+                          Dense,
+                          Dropout,
+                          Input,
+                          ZeroPadding2D,
+                          Convolution2D,
+                          BatchNormalization,
+                          Activation,
+                          MaxPooling2D,
+                          AveragePooling2D,
+                          merge)
 from keras.models import Model
 from keras import backend as K
 from keras.engine import Layer, InputSpec
 from keras import initializations
 import config
-from base_model import BaseModel
+from .base_model import BaseModel
 import sys
 
 sys.setrecursionlimit(3000)

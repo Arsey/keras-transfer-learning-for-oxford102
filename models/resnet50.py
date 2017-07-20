@@ -3,7 +3,7 @@ from keras.layers import (Flatten, Dense, Dropout)
 from keras.models import Model
 
 import config
-from base_model import BaseModel
+from .base_model import BaseModel
 
 
 class ResNet50(BaseModel):

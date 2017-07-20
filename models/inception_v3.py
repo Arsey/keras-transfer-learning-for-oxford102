@@ -6,7 +6,7 @@ from keras.preprocessing import image
 import numpy as np
 
 import config
-from base_model import BaseModel
+from .base_model import BaseModel
 
 
 class InceptionV3(BaseModel):

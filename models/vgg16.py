@@ -3,7 +3,7 @@ from keras.models import Model
 from keras.layers import Flatten, Dense, Dropout
 
 import config
-from base_model import BaseModel
+from .base_model import BaseModel
 
 
 class VGG16(BaseModel):
