@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 import os
 import glob
-import urllib
 import tarfile
 import numpy as np
 from scipy.io import loadmat
 from shutil import copyfile, rmtree
-
 import sys
+import config
 
 if sys.version_info[0] >= 3:
     from urllib.request import urlretrieve
@@ -16,9 +15,6 @@ else:
     # But note that this might need an update when Python 4
     # might be around one day
     from urllib import urlretrieve
-
-
-import config
 
 data_path = 'data'
 
@@ -63,7 +59,7 @@ image_labels = loadmat(image_labels_path)['labels'][0]
 image_labels -= 1
 
 files = sorted(glob.glob(os.path.join(data_path, 'jpg', '*.jpg')))
-labels = np.array(zip(files, image_labels))
+labels = np.array([i for i in zip(files, image_labels)])
 
 # Get current working directory for making absolute paths to images
 cwd = os.path.dirname(os.path.realpath(__file__))
