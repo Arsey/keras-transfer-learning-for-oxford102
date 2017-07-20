@@ -76,8 +76,9 @@ def handle(clientsocket):
 
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 serversocket.bind(config.server_address)
-serversocket.listen(10)
+serversocket.listen(10000)
 
 print('Ready for requests')
 
