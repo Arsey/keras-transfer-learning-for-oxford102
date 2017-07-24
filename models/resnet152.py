@@ -20,7 +20,7 @@ import sys
 sys.setrecursionlimit(3000)
 
 
-# The implementation took from here https://gist.github.com/flyyufelix/7e2eafb149f72f4d38dd661882c554a6
+# The implementation has been token from here https://gist.github.com/flyyufelix/7e2eafb149f72f4d38dd661882c554a6
 
 class Scale(Layer):
     '''Custom Layer for ResNet used for BatchNormalization.

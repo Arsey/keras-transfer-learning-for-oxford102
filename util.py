@@ -49,10 +49,7 @@ def save_history(history, prefix):
     plt.close()
 
 
-def plot_confusion_matrix(cm, classes,
-                          normalize=False,
-                          title='Confusion matrix',
-                          cmap=plt.cm.Blues):
+def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
     """
     This function prints and plots the confusion matrix.
     Normalization can be applied by setting `normalize=True`.
@@ -163,7 +160,6 @@ def override_keras_directory_iterator_next():
 
     def custom_next(self):
         batch_x, batch_y = original_next(self)
-
         batch_x = batch_x[:, ::-1, :, :]
         return batch_x, batch_y
 
@@ -213,9 +209,9 @@ def save_activations(model, inputs, files, layer, batch_number):
 def lock():
     if os.path.exists(config.lock_file):
         exit('Previous process is not yet finished.')
-    lock_file = open(config.lock_file, 'w')
-    lock_file.write(str(os.getpid()))
-    lock_file.close()
+
+    with open(config.lock_file, 'w') as lock_file:
+        lock_file.write(str(os.getpid()))
 
 
 def unlock():
