@@ -30,7 +30,7 @@ novelty_detection_model_path = join_path(trained_dir, 'novelty_detection-model-{
 plots_dir = join_path(abspath, 'plots')
 
 # server settings
-server_address = ('0.0.0.0', 4444)
+server_address = ('0.0.0.0', 4224)
 buffer_size = 4096
 
 classes = []

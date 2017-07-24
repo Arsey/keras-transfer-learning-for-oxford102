@@ -5,11 +5,6 @@ import numpy as np
 import glob
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.externals import joblib
-import keras
-
-# will take the video memory as much as needed for the chosen model
-os.environ["THEANO_FLAGS"] = "lib.cnmem=2"
-keras.backend.set_image_dim_ordering('th')
 
 import config
 import util
@@ -27,7 +22,8 @@ def parse_args():
     parser.add_argument('--store_activations', action='store_true')
     parser.add_argument('--novelty_detection', action='store_true')
     parser.add_argument('--model', type=str, required=True, help='Base model architecture',
-                        choices=[config.MODEL_RESNET50, config.MODEL_RESNET152, config.MODEL_INCEPTION_V3, config.MODEL_VGG16])
+                        choices=[config.MODEL_RESNET50, config.MODEL_RESNET152, config.MODEL_INCEPTION_V3,
+                                 config.MODEL_VGG16])
     parser.add_argument('--data_dir', help='Path to data train directory')
     parser.add_argument('--batch_size', default=500, type=int, help='How many files to predict on at once')
     args = parser.parse_args()
@@ -109,16 +105,16 @@ def predict(path):
             out = model.predict(np.array(inputs))
             end = time.clock()
             predictions[n_from:n_to] = np.argmax(out, axis=1)
-            print 'Prediction on batch {} took: {}'.format(n, end - start)
+            print('Prediction on batch {} took: {}'.format(n, end - start))
 
     if not args.store_activations:
         for i, p in enumerate(predictions):
-            recognized_class = classes_in_keras_format.keys()[classes_in_keras_format.values().index(p)]
-            print '| should be {} ({}) -> predicted as {} ({})'.format(y_trues[i], files[i].split(os.sep)[-2], p,
-                                                                       recognized_class)
+            recognized_class = list(classes_in_keras_format.keys())[list(classes_in_keras_format.values()).index(p)]
+            print('| should be {} ({}) -> predicted as {} ({})'.format(y_trues[i], files[i].split(os.sep)[-2], p,
+                                                                       recognized_class))
 
         if args.accuracy:
-            print 'Accuracy {}'.format(accuracy_score(y_true=y_trues, y_pred=predictions))
+            print('Accuracy {}'.format(accuracy_score(y_true=y_trues, y_pred=predictions)))
 
         if args.plot_confusion_matrix:
             cnf_matrix = confusion_matrix(y_trues, predictions)
@@ -140,6 +136,7 @@ if __name__ == '__main__':
     if args.model:
         config.model = args.model
 
+    util.set_img_format()
     model_module = util.get_model_class_instance()
     model = model_module.load()
 
@@ -149,4 +146,4 @@ if __name__ == '__main__':
 
     if args.execution_time:
         toc = time.clock()
-        print 'Time: %s' % (toc - tic)
+        print('Time: %s' % (toc - tic))

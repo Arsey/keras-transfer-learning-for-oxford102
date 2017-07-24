@@ -10,12 +10,12 @@ img_path = args.path
 s = socket.socket()
 s.connect(config.server_address)
 
-s.send(img_path)
+s.send(img_path.encode())
 while 1:
     data = s.recv(config.buffer_size)
     if data:
-        print data
+        print(data)
         break
 
-s.send('exit')
+s.send('exit'.encode())
 s.close()

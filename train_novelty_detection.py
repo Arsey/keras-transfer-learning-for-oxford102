@@ -13,13 +13,16 @@ import numpy as np
 import config
 import util
 
+
 def parse_args():
     """
     Parse input arguments
     """
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, required=True, help='Base model architecture',
-                        choices=[config.MODEL_RESNET50, config.MODEL_RESNET152, config.MODEL_INCEPTION_V3,
+                        choices=[config.MODEL_RESNET50,
+                                 config.MODEL_RESNET152,
+                                 config.MODEL_INCEPTION_V3,
                                  config.MODEL_VGG16])
     parser.add_argument('--use_nn', action='store_true')
     args = parser.parse_args()
@@ -56,7 +59,6 @@ def train_logistic():
 def train_nn():
     df = pd.read_csv(config.activations_path)
     df, y, classes = encode(df)
-
     X_train, X_test, y_train, y_test = train_test_split(df.values, y, test_size=0.2, random_state=17)
 
     model_module = util.get_model_class_instance()
@@ -74,8 +76,6 @@ def train_nn():
     model_checkpoint = ModelCheckpoint(config.get_novelty_detection_model_path(), save_best_only=True,
                                        save_weights_only=True, monitor='val_loss')
     callbacks_list = [early_stopping, model_checkpoint]
-
-    print(X_train.shape)
 
     model.fit(
         X_train,

@@ -2,10 +2,8 @@ import numpy as np
 import argparse
 import traceback
 import os
-import keras
 
 np.random.seed(1337)  # for reproducibility
-keras.backend.set_image_dim_ordering('th')
 
 import util
 import config
@@ -34,6 +32,7 @@ if __name__ == '__main__':
             config.model = args.model
 
         util.lock()
+        util.set_img_format()
         util.override_keras_directory_iterator_next()
         util.set_classes_from_train_dir()
         util.set_samples_info()

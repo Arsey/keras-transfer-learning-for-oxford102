@@ -12,6 +12,7 @@ import os
 import glob
 import pandas as pd
 import importlib
+import keras
 from keras import backend as K
 import config
 import math
@@ -220,3 +221,27 @@ def lock():
 def unlock():
     if os.path.exists(config.lock_file):
         os.remove(config.lock_file)
+
+
+def is_keras2():
+    return keras.__version__.startswith('2')
+
+
+def get_keras_backend_name():
+    try:
+        return K.backend()
+    except AttributeError:
+        return K._BACKEND
+
+
+def set_img_format():
+    try:
+        if K.backend() == 'theano':
+            K.set_image_data_format('channels_first')
+        else:
+            K.set_image_data_format('channels_last')
+    except AttributeError:
+        if K._BACKEND == 'theano':
+            K.set_image_dim_ordering('th')
+        else:
+            K.set_image_dim_ordering('tf')

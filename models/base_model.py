@@ -8,6 +8,7 @@ import numpy as np
 from sklearn.externals import joblib
 
 import config
+import util
 
 
 class BaseModel(object):
@@ -19,6 +20,7 @@ class BaseModel(object):
         self.class_weight = class_weight
         self.nb_epoch = nb_epoch
         self.fine_tuning_patience = 20
+        self.batch_size = 32
         self.freeze_layers_number = freeze_layers_number
         self.img_size = (224, 224)
 
@@ -33,14 +35,28 @@ class BaseModel(object):
             optimizer=SGD(lr=1e-4, decay=1e-6, momentum=0.9, nesterov=True),
             metrics=['accuracy'])
 
-        self.model.fit_generator(
-            self.get_train_datagen(rotation_range=30., shear_range=0.2, zoom_range=0.2, horizontal_flip=True),
-            samples_per_epoch=config.nb_train_samples,
-            nb_epoch=self.nb_epoch,
-            validation_data=self.get_validation_datagen(),
-            nb_val_samples=config.nb_validation_samples,
-            callbacks=self.get_callbacks(config.get_fine_tuned_weights_path(), patience=self.fine_tuning_patience),
-            class_weight=self.class_weight)
+        train_data = self.get_train_datagen(rotation_range=30., shear_range=0.2, zoom_range=0.2, horizontal_flip=True)
+        callbacks = self.get_callbacks(config.get_fine_tuned_weights_path(), patience=self.fine_tuning_patience)
+
+        if util.is_keras2():
+            self.model.fit_generator(
+                train_data,
+                steps_per_epoch=config.nb_train_samples / float(self.batch_size),
+                epochs=self.nb_epoch,
+                validation_data=self.get_validation_datagen(),
+                validation_steps=config.nb_validation_samples / float(self.batch_size),
+                callbacks=callbacks,
+                class_weight=self.class_weight)
+        else:
+            self.model.fit_generator(
+                train_data,
+                samples_per_epoch=config.nb_train_samples,
+                nb_epoch=self.nb_epoch,
+                validation_data=self.get_validation_datagen(),
+                nb_val_samples=config.nb_validation_samples,
+                callbacks=callbacks,
+                class_weight=self.class_weight)
+
         self.model.save(config.get_model_path())
 
     def train(self):
@@ -50,12 +66,13 @@ class BaseModel(object):
         print("Fine tuning...")
         self._fine_tuning()
         self.save_classes()
+        print("Classes are saved")
 
     def load(self):
         print("Creating model")
+        self.load_classes()
         self._create()
         self.model.load_weights(config.get_fine_tuned_weights_path())
-        self.load_classes()
         return self.model
 
     @staticmethod
@@ -63,7 +80,10 @@ class BaseModel(object):
         joblib.dump(config.classes, config.get_classes_path())
 
     def get_input_tensor(self):
-        return Input(shape=(3,) + self.img_size)
+        if util.get_keras_backend_name() == 'theano':
+            return Input(shape=(3,) + self.img_size)
+        else:
+            return Input(shape=self.img_size + (3,))
 
     @staticmethod
     def make_net_layers_non_trainable(model):

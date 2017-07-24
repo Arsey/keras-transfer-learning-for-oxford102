@@ -6,6 +6,9 @@ import argparse
 import config
 import util
 from sklearn.externals import joblib
+import traceback
+
+util.set_img_format()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=str, required=True, help='Base model architecture',
@@ -16,15 +19,16 @@ config.model = args.model
 
 model_module = util.get_model_class_instance()
 model = model_module.load()
-print 'Model loaded'
+print('Model loaded')
 
 try:
-    print 'Loading activation function'
     af = util.get_activation_function(model, model_module.noveltyDetectionLayerName)
-    print 'Loading relativity classifier'
+    print('Activation function is loaded')
+
     novelty_detection_clf = joblib.load(config.get_novelty_detection_model_path())
+    print('Relativity classifier is loaded')
 except Exception as e:
-    print e
+    print('Error loading relativity clf', e)
 
 FILE_DOES_NOT_EXIST = '-1'
 UNKNOWN_ERROR = '-2'
@@ -33,9 +37,10 @@ UNKNOWN_ERROR = '-2'
 def handle(clientsocket):
     while 1:
         buf = clientsocket.recv(config.buffer_size)
-        if buf == 'exit':
+        if buf == 'exit'.encode():
             return  # client terminated connection
 
+        response = ''
         if os.path.isfile(buf):
             try:
                 img = [model_module.load_img(buf)]
@@ -45,8 +50,8 @@ def handle(clientsocket):
                 top10 = out[0].argsort()[-10:][::-1]
 
                 class_indices = dict(zip(config.classes, range(len(config.classes))))
-                keys = class_indices.keys()
-                values = class_indices.values()
+                keys = list(class_indices.keys())
+                values = list(class_indices.values())
 
                 answer = keys[values.index(prediction)]
 
@@ -55,7 +60,7 @@ def handle(clientsocket):
                     predicted_relativity = novelty_detection_clf.predict(acts)[0]
                     nd_class = novelty_detection_clf.__classes[predicted_relativity]
                 except Exception as e:
-                    print e.message
+                    print(e.message)
                     nd_class = 'related'
 
                 top10_json = "["
@@ -66,13 +71,15 @@ def handle(clientsocket):
 
                 response = '{"probability":"%s","class":"%s","relativity":"%s","top10":%s}' % (
                     out[0][prediction], answer, nd_class, top10_json)
-                print response
-                clientsocket.sendall(response)
+                print(response)
             except Exception as e:
-                print e.message
-                clientsocket.sendall(UNKNOWN_ERROR)
+                print('Error', e)
+                traceback.print_stack()
+                response = UNKNOWN_ERROR
         else:
-            clientsocket.sendall(str(FILE_DOES_NOT_EXIST))
+            response = FILE_DOES_NOT_EXIST
+
+        clientsocket.sendall(response.encode())
 
 
 serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
