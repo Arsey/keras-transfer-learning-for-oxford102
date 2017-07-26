@@ -3,7 +3,7 @@ from keras.preprocessing import image
 from keras.applications.imagenet_utils import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
 from keras.layers import Input
-from keras.optimizers import SGD
+from keras.optimizers import Adam
 import numpy as np
 from sklearn.externals import joblib
 
@@ -32,7 +32,7 @@ class BaseModel(object):
 
         self.model.compile(
             loss='categorical_crossentropy',
-            optimizer=SGD(lr=1e-4, decay=1e-6, momentum=0.9, nesterov=True),
+            optimizer=Adam(lr=1e-5),
             metrics=['accuracy'])
 
         train_data = self.get_train_datagen(rotation_range=30., shear_range=0.2, zoom_range=0.2, horizontal_flip=True)
