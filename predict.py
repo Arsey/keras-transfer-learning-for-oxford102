@@ -1,8 +1,10 @@
+from __future__ import print_function
+
 import time
 import argparse
 import os
-import numpy as np
 import glob
+import numpy as np
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.externals import joblib
 

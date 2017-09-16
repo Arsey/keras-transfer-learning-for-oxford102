@@ -1,12 +1,14 @@
-import socket
-from threading import Thread
-import numpy as np
+from __future__ import print_function
+
 import os
 import argparse
+import socket
+import traceback
+from threading import Thread
+import numpy as np
 import config
 import util
 from sklearn.externals import joblib
-import traceback
 
 util.set_img_format()
 
@@ -60,7 +62,7 @@ def handle(clientsocket):
                     predicted_relativity = novelty_detection_clf.predict(acts)[0]
                     nd_class = novelty_detection_clf.__classes[predicted_relativity]
                 except Exception as e:
-                    print(e.message)
+                    print(e)
                     nd_class = 'related'
 
                 top10_json = "["

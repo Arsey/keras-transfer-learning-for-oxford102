@@ -8,7 +8,7 @@ lock_file = os.path.join(abspath, 'lock')
 data_dir = join_path(abspath, 'data/sorted')
 trained_dir = join_path(abspath, 'trained')
 
-train_dir, validation_dir = None, None
+train_dir, validation_dir, test_dir = None, None, None
 
 MODEL_VGG16 = 'vgg16'
 MODEL_INCEPTION_V3 = 'inception_v3'
@@ -37,12 +37,13 @@ classes = []
 
 nb_train_samples = 0
 nb_validation_samples = 0
-
+nb_test_samples = 0
 
 def set_paths():
-    global train_dir, validation_dir
+    global train_dir, validation_dir, test_dir
     train_dir = join_path(data_dir, 'train/')
     validation_dir = join_path(data_dir, 'valid/')
+    test_dir = join_path(data_dir, 'test/')
 
 
 set_paths()

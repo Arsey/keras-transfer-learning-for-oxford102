@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.preprocessing import image
 from keras.applications.imagenet_utils import preprocess_input
@@ -43,7 +45,8 @@ class BaseModel(object):
                 train_data,
                 steps_per_epoch=config.nb_train_samples / float(self.batch_size),
                 epochs=self.nb_epoch,
-                validation_data=self.get_validation_datagen(),
+                validation_data=self.get_validation_datagen(rotation_range=30., shear_range=0.2,
+                                                            zoom_range=0.2, horizontal_flip=True),
                 validation_steps=config.nb_validation_samples / float(self.batch_size),
                 callbacks=callbacks,
                 class_weight=self.class_weight)
@@ -52,7 +55,8 @@ class BaseModel(object):
                 train_data,
                 samples_per_epoch=config.nb_train_samples,
                 nb_epoch=self.nb_epoch,
-                validation_data=self.get_validation_datagen(),
+                validation_data=self.get_validation_datagen(rotation_range=30., shear_range=0.2,
+                                                            zoom_range=0.2, horizontal_flip=True),
                 nb_val_samples=config.nb_validation_samples,
                 callbacks=callbacks,
                 class_weight=self.class_weight)

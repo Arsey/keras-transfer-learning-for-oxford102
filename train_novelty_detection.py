@@ -1,3 +1,6 @@
+from __future__ import print_function
+
+import argparse
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LogisticRegression
@@ -7,7 +10,6 @@ from sklearn.metrics import accuracy_score
 from keras.models import Sequential
 from keras.layers import Dense, Dropout
 from keras.callbacks import EarlyStopping, ModelCheckpoint
-import argparse
 import pandas as pd
 import numpy as np
 import config

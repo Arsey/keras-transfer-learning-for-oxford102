@@ -9,3 +9,4 @@ theano==0.9.0
 h5py
 Pillow
 tensorflow-gpu
+Augmentor

@@ -1,15 +1,18 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
+
 import os
 import glob
+import sys
 import tarfile
+from shutil import copyfile, rmtree
 import numpy as np
 from scipy.io import loadmat
-from shutil import copyfile, rmtree
-import sys
 import config
 
 if sys.version_info[0] >= 3:
-    from urllib.request import urlretrieve
+    from urllib.request import urlretrieve # #pylint: disable=W,E
 else:
     # Not Python 3 - today, it is most likely to be Python 2
     # But note that this might need an update when Python 4
@@ -31,7 +34,7 @@ if not os.path.exists(data_path):
 
 flowers_archive_path = os.path.join(data_path, '102flowers.tgz')
 if not os.path.isfile(flowers_archive_path):
-    print ('Downloading images...')
+    print('Downloading images...')
     download_file('http://www.robots.ox.ac.uk/~vgg/data/flowers/102/102flowers.tgz')
 tarfile.open(flowers_archive_path).extractall(path=data_path)
 
