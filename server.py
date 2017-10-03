@@ -7,12 +7,16 @@ import config
 import util
 from sklearn.externals import joblib
 import traceback
+from keras.applications.imagenet_utils import preprocess_input
+import time
 
 util.set_img_format()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=str, required=True, help='Base model architecture',
-                    choices=[config.MODEL_RESNET50, config.MODEL_RESNET152, config.MODEL_INCEPTION_V3,
+                    choices=[config.MODEL_RESNET50,
+                             config.MODEL_RESNET152,
+                             config.MODEL_INCEPTION_V3,
                              config.MODEL_VGG16])
 args = parser.parse_args()
 config.model = args.model
@@ -21,14 +25,23 @@ model_module = util.get_model_class_instance()
 model = model_module.load()
 print('Model loaded')
 
+print('Warming up the model')
+start = time.clock()
+dummpy_img = np.ones((1, 3,) + model_module.img_size)
+dummpy_img = preprocess_input(dummpy_img)
+model.predict(dummpy_img)
+end = time.clock()
+print('Warming up took {} s'.format(end - start))
+
+print('Trying to load a Novelty Detector')
 try:
     af = util.get_activation_function(model, model_module.noveltyDetectionLayerName)
     print('Activation function is loaded')
 
     novelty_detection_clf = joblib.load(config.get_novelty_detection_model_path())
-    print('Relativity classifier is loaded')
+    print('Novelty Detection classifier is loaded')
 except Exception as e:
-    print('Error loading relativity clf', e)
+    print('Error on loading Novelty Detection classifier', e)
 
 FILE_DOES_NOT_EXIST = '-1'
 UNKNOWN_ERROR = '-2'
