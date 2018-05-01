@@ -15,12 +15,13 @@ class BaseModel(object):
     def __init__(self,
                  class_weight=None,
                  nb_epoch=1000,
+                 batch_size = 32,
                  freeze_layers_number=None):
         self.model = None
         self.class_weight = class_weight
         self.nb_epoch = nb_epoch
         self.fine_tuning_patience = 20
-        self.batch_size = 32
+        self.batch_size = batch_size
         self.freeze_layers_number = freeze_layers_number
         self.img_size = (224, 224)
 
@@ -34,6 +35,7 @@ class BaseModel(object):
             loss='categorical_crossentropy',
             optimizer=Adam(lr=1e-5),
             metrics=['accuracy'])
+        self.model.summary()
 
         train_data = self.get_train_datagen(rotation_range=30., shear_range=0.2, zoom_range=0.2, horizontal_flip=True)
         callbacks = self.get_callbacks(config.get_fine_tuned_weights_path(), patience=self.fine_tuning_patience)

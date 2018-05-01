@@ -1,12 +1,5 @@
-import matplotlib
-
-matplotlib.use('Agg')  # fixes issue if no GUI provided
+import matplotlib; matplotlib.use('Agg')  # fixes issue if no GUI provided
 import matplotlib.pyplot as plt
-
-import seaborn as sns
-
-sns.set(style='white')
-
 import numpy as np
 import os
 import glob
@@ -228,6 +221,16 @@ def get_keras_backend_name():
         return K.backend()
     except AttributeError:
         return K._BACKEND
+
+
+def tf_allow_growth():
+    import tensorflow as tf
+    from keras.backend.tensorflow_backend import set_session
+
+    tf_config = tf.ConfigProto()
+    tf_config.gpu_options.allow_growth = True
+    sess = tf.Session(config=tf_config)
+    set_session(sess)
 
 
 def set_img_format():

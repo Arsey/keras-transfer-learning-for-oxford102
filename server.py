@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import socket
 from threading import Thread
 import numpy as np
@@ -27,7 +28,11 @@ print('Model loaded')
 
 print('Warming up the model')
 start = time.clock()
-dummpy_img = np.ones((1, 3,) + model_module.img_size)
+if util.get_keras_backend_name() != 'tensorflow':
+    input_shape = (1, 3,) + model_module.img_size
+else:
+    input_shape = (1, ) + model_module.img_size + (3, )
+dummpy_img = np.ones(input_shape)
 dummpy_img = preprocess_input(dummpy_img)
 model.predict(dummpy_img)
 end = time.clock()
