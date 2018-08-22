@@ -1,0 +1,84 @@
+services:
+
+#  celery_amqp:
+#    build:
+#      context: ./docker/celery
+#    image: celery-easy-classify
+#    command: celery worker -A tasks --loglevel=INFO
+#    volumes:
+#      - "./tasks.py:/home/user/tasks.py"
+#    depends_on:
+#      - rabbitmq
+#    environment:
+#      - CELERY_BROKER_URL=amqp://guest:guest@10.1.0.100:5672
+#    networks:
+#      app_net:
+#        ipv4_address: 10.1.0.120
+
+
+
+#  rabbitmq:
+#    image: rabbitmq:3.7.7
+#    environment:
+#      - RABBITMQ_DEFAULT_USER=guest
+#      - RABBITMQ_DEFAULT_PASS=guest
+#    ports:
+#      - 5672:5672
+#    volumes:
+#      - "./docker/rabbitmq/docker-entrypoint.sh:/opt/docker-entrypoint.sh"
+#    networks:
+#      app_net:
+#        ipv4_address: 10.1.0.100
+#    entrypoint: /opt/docker-entrypoint.sh rabbitmq-server
+
+
+#  redis:
+#    image: redis
+##    command: redis-server --requirepass devpassword
+#    command: redis-server
+#    volumes:
+#      - 'redis:/data'
+#    ports:
+#      - '6379:6379'
+#    networks:
+#      app_net:
+#        ipv4_address: 10.1.0.12
+
+
+  oxford:
+    build: .
+    devices:
+      - /dev/nvidia0
+      - /dev/nvidia1
+      - /dev/nvidiactl
+      - /dev/nvidia-uvm
+      - /dev/nvidia-uvm-tools
+    ports:
+      - 8080:8181
+    tty: true
+#    depends_on:
+#      - redis
+#      - rabbitmq
+#      - celery_amqp
+    volumes:
+      - ./trained:/trained
+      - ./datasets:/datasets
+      - /tmp:/input-data
+
+      - nvidia_driver_375.82:/usr/local/nvidia:ro
+#    entrypoint: [bash, -c, "celery -A app.celery worker" ]
+#    networks:
+#      app_net:
+
+#networks:
+#  app_net:
+#    driver: bridge
+#    ipam:
+#      driver: default
+#      config:
+#        - subnet: 10.1.0.0/24
+version: '3'
+volumes:
+  nvidia_driver_375.82:
+    external: true
+  redis:

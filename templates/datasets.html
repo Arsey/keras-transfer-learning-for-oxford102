@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Datasets</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container">
+
+    <div class="page-header">
+        <h2>Datasets</h2>
+
+        <ul class="list-group">
+            {% for dataset in datasets %}
+            <li href="#" class="list-group-item">
+                <h4 class="list-group-item-heading">{{dataset}}</h4>
+                <a href="/datasets/delete/{{dataset}}">Delete</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="page-header">
+        <h2>New Dataset</h2>
+    </div>
+
+    <form action="/datasets" enctype="multipart/form-data" method="post">
+        {{form.csrf_token}}
+        <div class="row">
+            <div class="col-sm-4 well">
+
+                <div class="row">
+                    <div class="form-group">
+                        <label for="resize_channels">Image Type</label>
+                        <span name="resize_channels_explanation"
+                              class="explanation-tooltip glyphicon glyphicon-question-sign" data-container="body"
+                              title=""
+                              data-original-title="Color is 3-channel RGB. Grayscale is single channel monochrome."></span>
+                        {{form.resize_channels(class="form-control", id="resize_channels")}}
+                        {% for error in form.errors['resize_channels'] %}
+                        <div class="alert alert-danger">
+                            <strong>Error!</strong> {{error|safe}}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <label>Image size (Width x Height)</label>
+                        <span name="resize_dims_explanation"
+                              class="explanation-tooltip glyphicon glyphicon-question-sign" data-container="body"
+                              title="" data-original-title="Input images will be resized to fit."></span>
+                        <div class="input-group">
+                            {{form.resize_width(class="form-control", id="resize_width", placeholder="width")}}
+
+                            <span class="input-group-addon">x</span>
+                            {{form.resize_height(class="form-control", id="resize_height", placeholder="width")}}
+                        </div>
+                        {% for error in form.errors['resize_width'] %}
+                        <div class="alert alert-danger">
+                            <strong>Error!</strong> {{error|safe}}
+                        </div>
+                        {% endfor %}
+                        {% for error in form.errors['resize_height'] %}
+                        <div class="alert alert-danger">
+                            <strong>Error!</strong> {{error|safe}}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="form-group">
+                        <label for="resize_mode">Resize Transformation</label>
+                        <span name="resize_mode_explanation"
+                              class="explanation-tooltip glyphicon glyphicon-question-sign" data-container="body"
+                              title=""
+                              data-original-title="Options for dealing with aspect ratio changes during resize. See examples below."></span>
+                        {{form.resize_mode(class="form-control", id="resize_mode")}}
+                        {% for error in form.errors['resize_mode'] %}
+                        <div class="alert alert-danger">
+                            <strong>Error!</strong> {{error|safe}}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-8">
+                <div class="tab-pane active" id="db-folder">
+
+
+                    <div class="form-group">
+                        <label for="folder_train">Training Images</label>
+                        <span name="folder_train_explanation"
+                              class="explanation-tooltip glyphicon glyphicon-question-sign" data-container="body"
+                              title=""
+                              data-original-title="Indicate a folder which holds subfolders full of images.
+                              Each subfolder should be named according to the desired label for the images that it holds.">
+                        </span>
+                        {{form.train_folder(class="form-control autocomplete_path", placeholder="train folder",
+                        id="folder_train")}}
+                        {% for error in form.errors['train_folder'] %}
+                        <div class="alert alert-danger">
+                            <strong>Error!</strong> {{error|safe}}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-sm-10 col-sm-offset-1">
+                            <small>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="form-group col-sm-6">
+                            <label for="folder_train_min_per_class">Minimum samples per class</label>
+                            <span name="folder_train_min_per_class_explanation"
+                                  class="explanation-tooltip glyphicon glyphicon-question-sign"
+                                  data-container="body" title=""
+                                  data-original-title="You can choose to specify a minimum number of samples per class. If a class has fewer samples than the specified amount it will be ignored. Leave blank to ignore this feature."></span>
+                            {{form.folder_train_min_per_class(class="form-control", id="folder_train_min_per_class")}}
+                            {% for error in form.errors['folder_train_min_per_class'] %}
+                            <div class="alert alert-danger">
+                                <strong>Error!</strong> {{error|safe}}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label for="folder_train_max_per_class">Maximum samples per class</label>
+                            <span name="folder_train_max_per_class_explanation"
+                                  class="explanation-tooltip glyphicon glyphicon-question-sign"
+                                  data-container="body" title=""
+                                  data-original-title="You can choose to specify a maximum number of samples per class. If a class has more samples than the specified amount extra samples will be ignored. Leave blank to ignore this feature."></span>
+                            {{form.folder_train_max_per_class(class="form-control", id="folder_train_max_per_class")}}
+                            {% for error in form.errors['folder_train_max_per_class'] %}
+                            <div class="alert alert-danger">
+                                <strong>Error!</strong> {{error|safe}}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-sm-6">
+                            <label for="folder_pct_val">% for validation</label>
+                            <span name="folder_pct_val_explanation"
+                                  class="explanation-tooltip glyphicon glyphicon-question-sign"
+                                  data-container="body" title=""
+                                  data-original-title="You can choose to set apart a certain percentage of images from the training images for the validation set."></span>
+                            {{form.folder_pct_val(class="form-control", id="folder_pct_val")}}
+                            {% for error in form.errors['folder_pct_val'] %}
+                            <div class="alert alert-danger">
+                                <strong>Error!</strong> {{error|safe}}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label for="folder_pct_test">% for testing</label>
+                            <span name="folder_pct_test_explanation"
+                                  class="explanation-tooltip glyphicon glyphicon-question-sign"
+                                  data-container="body" title=""
+                                  data-original-title="You can choose to set apart a certain percentage of images from the training images for the test set."></span>
+                            {{form.folder_pct_test(class="form-control", id="folder_pct_test")}}
+                            {% for error in form.errors['folder_pct_test'] %}
+                            <div class="alert alert-danger">
+                                <strong>Error!</strong> {{error|safe}}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6 col-sm-offset-3 well">
+                <div class="form-group">
+                    <div class="form-group">
+                        <label for="encoding">Image Encoding</label>
+                        <span name="encoding_explanation" class="explanation-tooltip glyphicon glyphicon-question-sign"
+                              data-container="body" title=""
+                              data-original-title="Using either of these compression formats can save disk space, but can also require marginally more time for training."></span>
+                        {{form.encoding(class="form-control", id="encoding")}}
+                        {% for error in form.errors['encoding'] %}
+                        <div class="alert alert-danger">
+                            <strong>Error!</strong> {{error|safe}}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="dataset_name">Dataset Name</label>
+                    {{form.dataset_name(class="form-control", id="dataset_name")}}
+                    {% for error in form.errors['dataset_name'] %}
+                    <div class="alert alert-danger">
+                        <strong>Error!</strong> {{error|safe}}
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <input type="submit" name="create-dataset" class="btn btn-primary" value="Create">
+            </div>
+        </div>
+
+    </form>
+
+    <script>
+        $(".explanation-tooltip").tooltip();
+    </script>
+
+</div>
+</body>
+</html>

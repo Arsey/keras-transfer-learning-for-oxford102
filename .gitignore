@@ -12,3 +12,4 @@ gitpush.sh
 trained
 *.log
 lock
+/datasets

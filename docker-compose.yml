@@ -1,0 +1,10 @@
+version: '3'
+services:
+  oxford:
+    build: .
+    tty: true
+    volumes:
+      - ./trained:/opt/tllib/trained
+      - ./data:/opt/tllib/data
+    ports:
+      - 8080:8181

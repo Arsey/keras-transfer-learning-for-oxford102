@@ -4,8 +4,10 @@ from keras.applications.imagenet_utils import preprocess_input
 from keras.preprocessing.image import ImageDataGenerator
 from keras.layers import Input
 from keras.optimizers import Adam
+from keras.models import model_from_json
 import numpy as np
 from sklearn.externals import joblib
+import os
 
 import config
 import util
@@ -15,7 +17,7 @@ class BaseModel(object):
     def __init__(self,
                  class_weight=None,
                  nb_epoch=1000,
-                 batch_size = 32,
+                 batch_size=32,
                  freeze_layers_number=None):
         self.model = None
         self.class_weight = class_weight
@@ -73,7 +75,10 @@ class BaseModel(object):
     def load(self):
         print("Creating model")
         self.load_classes()
-        self._create()
+        if os.path.exists(config.get_compiled_model_path()):
+            self.model = model_from_json(open(config.get_compiled_model_path()).read())
+        else:
+            self._create()
         self.model.load_weights(config.get_fine_tuned_weights_path())
         return self.model
 

@@ -17,10 +17,9 @@ MODEL_RESNET152 = 'resnet152'
 
 model = MODEL_RESNET50
 
-bf_train_path = join_path(trained_dir, 'bottleneck_features_train.npy')
-bf_valid_path = join_path(trained_dir, 'bottleneck_features_validation.npy')
 top_model_weights_path = join_path(trained_dir, 'top-model-{}-weights.h5')
 fine_tuned_weights_path = join_path(trained_dir, 'fine-tuned-{}-weights.h5')
+compiled_model_path = join_path(trained_dir, 'model-compiled-{}.json')
 model_path = join_path(trained_dir, 'model-{}.h5')
 classes_path = join_path(trained_dir, 'classes-{}')
 
@@ -30,8 +29,7 @@ novelty_detection_model_path = join_path(trained_dir, 'novelty_detection-model-{
 plots_dir = join_path(abspath, 'plots')
 
 # server settings
-server_address = ('0.0.0.0', 4224)
-buffer_size = 4096
+server_address = ('0.0.0.0', 8181)
 
 classes = []
 
@@ -58,6 +56,10 @@ def get_fine_tuned_weights_path(checkpoint=False):
 
 def get_novelty_detection_model_path():
     return novelty_detection_model_path.format(model)
+
+
+def get_compiled_model_path():
+    return compiled_model_path.format(model)
 
 
 def get_model_path():

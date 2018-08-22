@@ -53,7 +53,8 @@ RUN apt-get update && apt-get install -y \
 RUN pip --no-cache-dir install \
 		Cython \
 		Pillow \
-		six
+		six \
+		flask
 
 
 # Install TensorFlow
@@ -67,3 +68,8 @@ RUN pip --no-cache-dir install git+git://github.com/fchollet/keras.git@${KERAS_V
 WORKDIR /opt
 
 RUN git clone https://github.com/Arsey/keras-transfer-learning-for-oxford102.git /opt/$LIB_NAME
+
+ADD https://github.com/fchollet/deep-learning-models/releases/download/v0.2/resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5 /root/.keras/models/resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5
+
+RUN pip --no-cache-dir install \
+    Flask-WTF

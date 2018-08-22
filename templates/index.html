@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
+</head>
+<body>
+<form method="post" id="task-form" action="/train">
+    <button id="task-button" type="submit">Train</button>
+</form>
+<div id="train-log"></div>
+
+<script>
+    $(document).ready(function () {
+        var namespace = '/train';
+        var socket_address = 'http://' + document.domain + ':' + location.port + namespace;
+        var socket = io.connect(socket_address);
+        console.log(socket_address);
+        socket.on('connect', function () {
+            //// on a connection join a room
+            socket.emit('join_room');
+        });
+        socket.on('msg', function (data) {
+            console.log(data.msg);
+            $("#train-log").prepend('<li>' + data.msg + '</li>');
+        });
+        socket.on('status', function (data) {
+            console.log(data.msg);
+            if (data.msg === 'End') {
+                $("#task-button").show()
+            }
+        });
+    });
+</script>
+
+
+<script>
+    $("#task-button").click(function (e) {
+        $("#task-button").hide();
+        $.ajax({
+            type: "POST",
+            url: '/train',
+            data: $("#task-form").serialize(),
+            success: function (data) {
+                task = data.id;
+                $("#train-log").empty();
+                $("#train-log").prepend('<li>Task ID:' + task + ' has been submitted.</li>');
+
+            }
+        });
+        e.preventDefault();
+        console.log('complete')
+    });
+</script>
+</body>
+</html>
