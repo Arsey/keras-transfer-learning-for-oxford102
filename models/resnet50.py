@@ -2,7 +2,7 @@ from keras.applications.resnet50 import ResNet50 as KerasResNet50
 from keras.layers import (Flatten, Dense, Dropout)
 from keras.models import Model
 
-import config
+import train_config as config
 from .base_model import BaseModel
 
 

@@ -9,7 +9,7 @@ import numpy as np
 from sklearn.externals import joblib
 import os
 
-import config
+import train_config as config
 import util
 
 
@@ -36,9 +36,10 @@ class BaseModel(object):
         self.model.compile(
             loss='categorical_crossentropy',
             optimizer=Adam(lr=1e-5),
-            metrics=['accuracy'])
+            # metrics=['accuracy']
+        )
         self.model.summary()
-
+        print(config.get_fine_tuned_weights_path())
         train_data = self.get_train_datagen(rotation_range=30., shear_range=0.2, zoom_range=0.2, horizontal_flip=True)
         callbacks = self.get_callbacks(config.get_fine_tuned_weights_path(), patience=self.fine_tuning_patience)
 

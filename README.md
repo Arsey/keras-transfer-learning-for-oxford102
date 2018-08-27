@@ -52,3 +52,8 @@ python server.py --model=resnet50
 ```
 python client.py --path "/full/path/to/image"
 ```
+
+## docker
+
+docker-compose -f nvidia-docker-compose.yml --verbose build
+docker build -t kerastransferlearningforoxford102_oxford .

@@ -55,15 +55,17 @@ services:
       - /dev/nvidia-uvm-tools
     ports:
       - 8080:8181
+#      - 4000:4000
     tty: true
 #    depends_on:
 #      - redis
 #      - rabbitmq
 #      - celery_amqp
     volumes:
-      - ./trained:/trained
+      - ./jobs:/jobs
       - ./datasets:/datasets
       - /tmp:/input-data
+      - .:/opt/easyclassify
 
       - nvidia_driver_375.82:/usr/local/nvidia:ro
 #    entrypoint: [bash, -c, "celery -A app.celery worker" ]

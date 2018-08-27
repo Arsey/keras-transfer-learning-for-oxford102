@@ -6,12 +6,13 @@ import os
 np.random.seed(1337)  # for reproducibility
 
 import util
-import config
+import train_config as config
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_dir', help='Path to data dir')
+    parser.add_argument('--job_dir')
     parser.add_argument('--model', type=str, required=True, help='Base model architecture', choices=[
         config.MODEL_RESNET50,
         config.MODEL_RESNET152,
@@ -24,7 +25,6 @@ def parse_args():
 
 
 def init():
-    util.lock()
     util.set_img_format()
     util.override_keras_directory_iterator_next()
     util.set_classes_from_train_dir()
@@ -33,6 +33,7 @@ def init():
     if util.get_keras_backend_name() != 'theano':
         util.tf_allow_growth()
 
+    print(config.trained_dir)
     if not os.path.exists(config.trained_dir):
         os.mkdir(config.trained_dir)
 
@@ -52,6 +53,7 @@ if __name__ == '__main__':
         args = parse_args()
         if args.data_dir:
             config.data_dir = args.data_dir
+            config.trained_dir = args.job_dir
             config.set_paths()
         if args.model:
             config.model = args.model
@@ -62,4 +64,4 @@ if __name__ == '__main__':
         print(e)
         traceback.print_exc()
     finally:
-        util.unlock()
+        exit(0)

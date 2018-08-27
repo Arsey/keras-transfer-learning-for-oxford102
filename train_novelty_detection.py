@@ -38,7 +38,7 @@ def encode(df):
 
 
 def train_logistic():
-    df = pd.read_csv(config.activations_path)
+    df = pd.read_csv(config.get_activations_path())
     df, y, classes = encode(df)
 
     X_train, X_test, y_train, y_test = train_test_split(df.values, y, test_size=0.2, random_state=17)
@@ -57,7 +57,7 @@ def train_logistic():
 
 
 def train_nn():
-    df = pd.read_csv(config.activations_path)
+    df = pd.read_csv(config.get_activations_path())
     df, y, classes = encode(df)
     X_train, X_test, y_train, y_test = train_test_split(df.values, y, test_size=0.2, random_state=17)
 

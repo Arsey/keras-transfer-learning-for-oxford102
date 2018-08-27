@@ -2,7 +2,7 @@ from keras.applications.vgg16 import VGG16 as KerasVGG16
 from keras.models import Model
 from keras.layers import Flatten, Dense, Dropout
 
-import config
+import train_config as config
 from .base_model import BaseModel
 
 

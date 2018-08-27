@@ -1,4 +1,6 @@
-import matplotlib; matplotlib.use('Agg')  # fixes issue if no GUI provided
+import matplotlib;
+
+matplotlib.use('Agg')  # fixes issue if no GUI provided
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -7,7 +9,7 @@ import pandas as pd
 import importlib
 import keras
 from keras import backend as K
-import config
+import train_config as config
 import math
 import itertools
 
@@ -194,22 +196,9 @@ def save_activations(model, inputs, files, layer, batch_number):
     submission.insert(0, 'class', ids)
     submission.reset_index()
     if batch_number > 0:
-        submission.to_csv(config.activations_path, index=False, mode='a', header=False)
+        submission.to_csv(config.get_activations_path(), index=False, mode='a', header=False)
     else:
-        submission.to_csv(config.activations_path, index=False)
-
-
-def lock():
-    if os.path.exists(config.lock_file):
-        exit('Previous process is not yet finished.')
-
-    with open(config.lock_file, 'w') as lock_file:
-        lock_file.write(str(os.getpid()))
-
-
-def unlock():
-    if os.path.exists(config.lock_file):
-        os.remove(config.lock_file)
+        submission.to_csv(config.get_activations_path(), index=False)
 
 
 def is_keras2():

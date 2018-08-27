@@ -4,7 +4,8 @@ services:
     build: .
     tty: true
     volumes:
-      - ./trained:/opt/tllib/trained
-      - ./data:/opt/tllib/data
+      - ./jobs:/jobs
+      - ./datasets:/datasets
+      - /tmp:/input-data
     ports:
       - 8080:8181

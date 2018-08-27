@@ -3,8 +3,6 @@ import os
 
 abspath = os.path.dirname(os.path.abspath(__file__))
 
-lock_file = os.path.join(abspath, 'lock')
-
 data_dir = join_path(abspath, 'data/sorted')
 trained_dir = join_path(abspath, 'trained')
 
@@ -16,15 +14,6 @@ MODEL_RESNET50 = 'resnet50'
 MODEL_RESNET152 = 'resnet152'
 
 model = MODEL_RESNET50
-
-top_model_weights_path = join_path(trained_dir, 'top-model-{}-weights.h5')
-fine_tuned_weights_path = join_path(trained_dir, 'fine-tuned-{}-weights.h5')
-compiled_model_path = join_path(trained_dir, 'model-compiled-{}.json')
-model_path = join_path(trained_dir, 'model-{}.h5')
-classes_path = join_path(trained_dir, 'classes-{}')
-
-activations_path = join_path(trained_dir, 'activations.csv')
-novelty_detection_model_path = join_path(trained_dir, 'novelty_detection-model-{}')
 
 plots_dir = join_path(abspath, 'plots')
 
@@ -46,25 +35,25 @@ def set_paths():
 set_paths()
 
 
-def get_top_model_weights_path():
-    return top_model_weights_path.format(model)
-
-
 def get_fine_tuned_weights_path(checkpoint=False):
-    return fine_tuned_weights_path.format(model + '-checkpoint' if checkpoint else model)
+    return join_path(trained_dir, 'weights{}.h5').format('-checkpoint' if checkpoint else '')
 
 
 def get_novelty_detection_model_path():
-    return novelty_detection_model_path.format(model)
+    return join_path(trained_dir, 'novelty_detection-model')
 
 
 def get_compiled_model_path():
-    return compiled_model_path.format(model)
+    return join_path(trained_dir, 'model-compiled.json')
 
 
 def get_model_path():
-    return model_path.format(model)
+    return join_path(trained_dir, 'model.h5')
 
 
 def get_classes_path():
-    return classes_path.format(model)
+    return join_path(trained_dir, 'classes')
+
+
+def get_activations_path():
+    return join_path(trained_dir, 'activations.csv')

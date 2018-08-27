@@ -5,7 +5,7 @@ from keras.optimizers import SGD
 from keras.preprocessing import image
 import numpy as np
 
-import config
+import train_config as config
 from .base_model import BaseModel
 
 

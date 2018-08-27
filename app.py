@@ -8,11 +8,31 @@ import io
 import traceback
 import argparse
 from keras.applications.imagenet_utils import preprocess_input
-
+import os
 import dataset
+from scheduler import Scheduler
+from job import ClassificationModelJob
+from task.train import TrainTask
+from flask_socketio import SocketIO
+from gevent import monkey
+import utils.time_filters
+
+monkey.patch_all()
 
 app = flask.Flask(__name__)
-app.secret_key = 'fastclassify'
+app.secret_key = os.urandom(12).encode('hex')
+app.config['WTF_CSRF_ENABLED'] = False
+socketio = SocketIO(app, async_mode='gevent', path='/socket.io')
+
+app.jinja_env.filters['print_time'] = utils.time_filters.print_time
+app.jinja_env.filters['print_time_diff'] = utils.time_filters.print_time_diff
+app.jinja_env.filters['print_time_since'] = utils.time_filters.print_time_since
+app.jinja_env.filters['sizeof_fmt'] = utils.sizeof_fmt
+
+scheduler = Scheduler(gpu_list='1,2')
+scheduler.load_past_jobs()
+# TODO: implement
+# scheduler.load_past_jobs()
 
 model = {}
 model_module = {}
@@ -149,28 +169,70 @@ def datasets():
 
 @app.route('/train', methods=['POST', 'GET'])
 def train():
+    job = None
+    dataset_id = 'cor_clusters'
+    try:
+        job = ClassificationModelJob(
+            # TODO get name from form data
+            name='test',
+            # TODO get dataset from form data
+            dataset_id=dataset_id
+        )
+        task = TrainTask(
+            job=job,
+            dataset=dataset_id,
+            train_epochs=1,
+            snapshot_interval=1,
+            learning_rate=1e-5,
+            lr_policy='fixed',
+            gpu_count=1,
+            # selected_gpus=selected_gpus,
+            batch_size=32,
+            # batch_accumulation=form.batch_accumulation.data,
+            # val_interval=form.val_interval.data,
+            # traces_interval=form.traces_interval.data,
+            # pretrained_model=pretrained_model,
+            # crop_size=form.crop_size.data,
+            # use_mean=form.use_mean.data,
+            network='resnet50',
+            # random_seed=form.random_seed.data,
+            # solver_type=form.solver_type.data,
+            # rms_decay=form.rms_decay.data,
+            # shuffle=form.shuffle.data,
+            # data_aug=data_aug,
+        )
+        job.tasks.append(task)
+        scheduler.add_job(job)
+
+    except Exception as e:
+        # traceback.print_stack()
+        # traceback.print_exc()
+        # print(e)
+        if job:
+            scheduler.delete_job(job)
+        raise
+
     return render_template('train.html')
 
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, required=True, help='Base model architecture', choices=[
-        config.MODEL_RESNET50,
-        config.MODEL_RESNET152,
-        config.MODEL_INCEPTION_V3,
-        config.MODEL_VGG16])
-    parser.add_argument('--port', type=int, default=config.server_address[1])
-    parser.add_argument('--host', type=str, default=config.server_address[0])
-    parser.add_argument('--debug', action='store_true')
-    args = parser.parse_args()
-
-    print("* Loading model and starting server. Please wait")
-    # init(args.model)
-    # model_module, model = load_model()
-    # prediction_interpreter = PredictionInterpreter()
-    app.run(
-        host=args.host,
-        port=args.port,
-        debug=args.debug,
-        # use_reloader=False
-    )
+# if __name__ == '__main__':
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument('--model', type=str, required=True, help='Base model architecture', choices=[
+#         config.MODEL_RESNET50,
+#         config.MODEL_RESNET152,
+#         config.MODEL_INCEPTION_V3,
+#         config.MODEL_VGG16])
+#     parser.add_argument('--port', type=int, default=config.server_address[1])
+#     parser.add_argument('--host', type=str, default=config.server_address[0])
+#     parser.add_argument('--debug', action='store_true')
+#     args = parser.parse_args()
+#
+#     print("* Loading model and starting server. Please wait")
+#     init(args.model)
+#     model_module, model = load_model()
+#     prediction_interpreter = PredictionInterpreter()
+#     app.run(
+#         host=args.host,
+#         port=args.port,
+#         debug=args.debug,
+#         use_reloader=False
+#     )

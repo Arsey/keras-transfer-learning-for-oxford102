@@ -2,8 +2,7 @@ FROM nvidia/cuda:8.0-cudnn5-devel-ubuntu14.04
 
 MAINTAINER Alexander Lazarev <arseysensector@gmail.com>
 
-# tllib stands for transfer learning library
-ENV LIB_NAME="tllib"
+ENV LIB_NAME="easyclassify"
 
 ARG KERAS_VERSION=2.1.3
 ARG TENSORFLOW_VERSION=0.12.1
@@ -73,3 +72,8 @@ ADD https://github.com/fchollet/deep-learning-models/releases/download/v0.2/resn
 
 RUN pip --no-cache-dir install \
     Flask-WTF
+
+RUN pip install gevent
+RUN pip install psutil
+RUN pip install Flask-WTF
+RUN pip install Flask-SocketIO==2.6
