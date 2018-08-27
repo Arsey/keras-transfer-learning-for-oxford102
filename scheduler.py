@@ -357,7 +357,15 @@ class Scheduler:
                 shutil.rmtree(job.dir())
             print('Job deleted', job_id)
 
-            # TODO: add socketio emit event that job has been deleted
+            from easyclassify.app import socketio
+            socketio.emit('job update',
+                          {
+                              'update': 'deleted',
+                              'job_id': job.id()
+                          },
+                          namespace='/jobs',
+                          room='job_management',
+                          )
 
             return True
 

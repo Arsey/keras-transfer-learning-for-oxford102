@@ -3,7 +3,6 @@ from __future__ import absolute_import
 from .job import Job
 from easyclassify.utils import subclass, override
 
-
 @subclass
 class ClassificationModelJob(Job):
 
@@ -28,4 +27,5 @@ class ClassificationModelJob(Job):
 
     def train_task(self):
         """Return the first TrainTask for this job"""
-        return [t for t in self.tasks if isinstance(t, tasks.TrainTask)][0]
+        from easyclassify.task import TrainTask
+        return [t for t in self.tasks if isinstance(t, TrainTask)][0]

@@ -16,10 +16,12 @@ from task.train import TrainTask
 from flask_socketio import SocketIO
 from gevent import monkey
 import utils.time_filters
+import werkzeug.exceptions
 
 monkey.patch_all()
 
-app = flask.Flask(__name__)
+app = flask.Flask(__name__, static_url_path='/static')
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.secret_key = os.urandom(12).encode('hex')
 app.config['WTF_CSRF_ENABLED'] = False
 socketio = SocketIO(app, async_mode='gevent', path='/socket.io')
@@ -169,50 +171,182 @@ def datasets():
 
 @app.route('/train', methods=['POST', 'GET'])
 def train():
-    job = None
-    dataset_id = 'cor_clusters'
-    try:
-        job = ClassificationModelJob(
-            # TODO get name from form data
-            name='test',
-            # TODO get dataset from form data
-            dataset_id=dataset_id
-        )
-        task = TrainTask(
-            job=job,
-            dataset=dataset_id,
-            train_epochs=1,
-            snapshot_interval=1,
-            learning_rate=1e-5,
-            lr_policy='fixed',
-            gpu_count=1,
-            # selected_gpus=selected_gpus,
-            batch_size=32,
-            # batch_accumulation=form.batch_accumulation.data,
-            # val_interval=form.val_interval.data,
-            # traces_interval=form.traces_interval.data,
-            # pretrained_model=pretrained_model,
-            # crop_size=form.crop_size.data,
-            # use_mean=form.use_mean.data,
-            network='resnet50',
-            # random_seed=form.random_seed.data,
-            # solver_type=form.solver_type.data,
-            # rms_decay=form.rms_decay.data,
-            # shuffle=form.shuffle.data,
-            # data_aug=data_aug,
-        )
-        job.tasks.append(task)
-        scheduler.add_job(job)
+    if False:
+        job = None
+        dataset_id = 'cor_clusters'
+        try:
+            job = ClassificationModelJob(
+                # TODO get name from form data
+                name='test',
+                # TODO get dataset from form data
+                dataset_id=dataset_id
+            )
+            task = TrainTask(
+                job=job,
+                dataset=dataset_id,
+                train_epochs=1,
+                snapshot_interval=1,
+                learning_rate=1e-5,
+                lr_policy='fixed',
+                gpu_count=1,
+                # selected_gpus=selected_gpus,
+                batch_size=32,
+                # batch_accumulation=form.batch_accumulation.data,
+                # val_interval=form.val_interval.data,
+                # traces_interval=form.traces_interval.data,
+                # pretrained_model=pretrained_model,
+                # crop_size=form.crop_size.data,
+                # use_mean=form.use_mean.data,
+                network='resnet50',
+                # random_seed=form.random_seed.data,
+                # solver_type=form.solver_type.data,
+                # rms_decay=form.rms_decay.data,
+                # shuffle=form.shuffle.data,
+                # data_aug=data_aug,
+            )
+            job.tasks.append(task)
+            scheduler.add_job(job)
 
-    except Exception as e:
-        # traceback.print_stack()
-        # traceback.print_exc()
-        # print(e)
-        if job:
-            scheduler.delete_job(job)
-        raise
+        except Exception as e:
+            # traceback.print_stack()
+            # traceback.print_exc()
+            # print(e)
+            if job:
+                scheduler.delete_job(job)
+            raise
 
-    return render_template('train.html')
+    return render_template(
+        'train.html',
+        total_gpu_count=len(scheduler.resources['gpus']),
+        remaining_gpu_count=sum(r.remaining() for r in scheduler.resources['gpus'])
+    )
+
+
+def get_job_list(cls, running):
+    return sorted(
+        [j for j in scheduler.jobs.values() if isinstance(j, cls) and j.status.is_running() == running],
+        key=lambda j: j.status_history[0][1],
+        reverse=True,
+    )
+
+
+def json_dict(job, model_output_fields):
+    d = {
+        'id': job.id(),
+        'name': job.name(),
+        'group': job.group,
+        'status': job.status_of_tasks().name,
+        'status_css': job.status_of_tasks().css,
+        'submitted': job.status_history[0][1],
+        'elapsed': job.runtime_of_tasks(),
+    }
+
+    if 'train_db_task' in dir(job):
+        d.update({
+            'backend': job.train_db_task().backend,
+        })
+
+    if 'train_task' in dir(job):
+        d.update({
+            'framework': job.train_task().get_framework_id(),
+        })
+
+        for prefix, outputs in (('train', job.train_task().train_outputs),
+                                ('val', job.train_task().val_outputs)):
+            for key in outputs.keys():
+                data = outputs[key].data
+                if len(data) > 0:
+                    key = '%s (%s) ' % (key, prefix)
+                    model_output_fields.add(key + 'last')
+                    model_output_fields.add(key + 'min')
+                    model_output_fields.add(key + 'max')
+                    d.update({key + 'last': data[-1]})
+                    d.update({key + 'min': min(data)})
+                    d.update({key + 'max': max(data)})
+
+        if (job.train_task().combined_graph_data() and
+                'columns' in job.train_task().combined_graph_data()):
+            d.update({
+                'sparkline': job.train_task().combined_graph_data()['columns'][0][1:],
+            })
+
+    if 'get_progress' in dir(job):
+        d.update({
+            'progress': int(round(100 * job.get_progress())),
+        })
+
+    if hasattr(job, 'dataset_id'):
+        d.update({
+            'dataset_id': job.dataset_id,
+        })
+
+    if hasattr(job, 'extension_id'):
+        d.update({
+            'extension': job.extension_id,
+        })
+    else:
+        if hasattr(job, 'dataset_id'):
+            ds = scheduler.get_job(job.dataset_id)
+            if ds and hasattr(ds, 'extension_id'):
+                d.update({
+                    'extension': ds.extension_id,
+                })
+
+    if isinstance(job, ClassificationModelJob):
+        d.update({'type': 'model'})
+
+    return d
+
+
+# digits->views.py
+@app.route('/completed_jobs.json', methods=['GET'])
+def completed_jobs():
+    completed_models = get_job_list(ClassificationModelJob, False)
+    running_models = get_job_list(ClassificationModelJob, True)
+
+    model_output_fields = set()
+    data = {
+        'running': [json_dict(j, model_output_fields) for j in running_models],
+        'models': [json_dict(j, model_output_fields) for j in completed_models],
+        'model_output_fields': sorted(list(model_output_fields)),
+    }
+
+    return flask.jsonify(data)
+
+
+@app.route('/jobs', methods=['DELETE'])
+def delete_jobs():
+    not_found = 0
+    failed = 0
+    job_ids = flask.request.form.getlist('job_ids[]')
+    error = []
+
+    for job_id in job_ids:
+
+        try:
+            job = scheduler.get_job(job_id)
+            if job is None:
+                not_found += 1
+                continue
+
+            if not scheduler.delete_job(job_id):
+                failed += 1
+                continue
+        except Exception as e:
+            error.append(str(e))
+            pass
+
+    if not_found:
+        error.append('%d job%s not found.' % (not_found, '' if not_found == 1 else 's'))
+
+    if failed:
+        error.append('%d job%s failed to delete.' % (failed, '' if failed == 1 else 's'))
+
+    if len(error) > 0:
+        error = ' '.join(error)
+        raise werkzeug.exceptions.BadRequest(error)
+
+    return 'Jobs deleted.'
 
 # if __name__ == '__main__':
 #     parser = argparse.ArgumentParser()
